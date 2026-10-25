@@ -37,11 +37,12 @@ export default function DashboardSidebar({ mobileOpen = false, onCloseMobile }) 
       { label: 'Explore Map', path: '/services', icon: Compass },
     ],
     provider: [
-      { label: 'Provider Overview', path: '/provider', icon: LayoutDashboard, end: true },
+      { label: 'Provider Dashboard', path: '/provider/dashboard', icon: LayoutDashboard },
       { label: 'Incoming Requests', path: '/provider/requests', icon: Inbox, highlight: true },
       { label: 'Active Jobs', path: '/provider/jobs', icon: Briefcase },
-      { label: 'Map & Navigation', path: '/provider/navigation', icon: Navigation },
+      { label: 'Dispatch Map', path: '/provider/map', icon: Navigation },
       { label: 'Job History', path: '/provider/history', icon: History },
+      { label: 'Provider Profile', path: '/provider/profile', icon: ShieldCheck },
     ],
     admin: [
       { label: 'Analytics Overview', path: '/admin', icon: LayoutDashboard, end: true },

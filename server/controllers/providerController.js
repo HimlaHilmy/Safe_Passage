@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const User = require('../models/User');
 
 /**
@@ -8,14 +9,18 @@ const User = require('../models/User');
  */
 exports.getProviders = async (req, res, next) => {
   try {
-    try {
-      const providers = await User.find({
-        role: 'provider',
-        'providerDetails.verified': true,
-      }).select('-passwordHash');
+    if (mongoose.connection.readyState === 1) {
+      try {
+        const providers = await User.find({
+          role: 'provider',
+          'providerDetails.verified': true,
+        }).select('-passwordHash');
 
-      return res.status(200).json({ success: true, count: providers.length, data: providers });
-    } catch {
+        return res.status(200).json({ success: true, count: providers.length, data: providers });
+      } catch {
+        // Fallback below
+      }
+    }
       // Demo list
       const demoProviders = [
         {
@@ -49,7 +54,6 @@ exports.getProviders = async (req, res, next) => {
       ];
 
       return res.status(200).json({ success: true, count: demoProviders.length, data: demoProviders });
-    }
   } catch (err) {
     next(err);
   }
@@ -97,7 +101,7 @@ exports.getProviderMe = async (req, res, next) => {
  */
 exports.updateProviderMe = async (req, res, next) => {
   try {
-    const { isAvailable, coordinates, serviceTypes } = req.body;
+    const { isAvailable, coordinates, serviceTypes, phone, licenseNumber, name } = req.body;
     const providerId = req.user.id || req.user._id;
 
     const updates = {};
@@ -109,20 +113,27 @@ exports.updateProviderMe = async (req, res, next) => {
       };
     }
     if (serviceTypes) updates['providerDetails.serviceTypes'] = serviceTypes;
+    if (licenseNumber !== undefined) updates['providerDetails.licenseNumber'] = licenseNumber;
+    if (phone) updates.phone = phone;
+    if (name) updates.name = name;
 
-    try {
-      const updatedUser = await User.findByIdAndUpdate(providerId, { $set: updates }, { new: true }).select('-passwordHash');
-      return res.status(200).json({ success: true, message: 'Provider profile updated.', data: updatedUser });
-    } catch {
-      return res.status(200).json({
-        success: true,
-        message: 'Provider profile updated (Development Mode).',
-        data: {
-          id: providerId,
-          ...updates,
-        },
-      });
+    if (mongoose.connection.readyState === 1) {
+      try {
+        const updatedUser = await User.findByIdAndUpdate(providerId, { $set: updates }, { new: true }).select('-passwordHash');
+        return res.status(200).json({ success: true, message: 'Provider profile updated successfully.', data: updatedUser });
+      } catch {
+        // Fallback below
+      }
     }
+
+    return res.status(200).json({
+      success: true,
+      message: 'Provider profile updated (Development Mode).',
+      data: {
+        id: providerId,
+        ...updates,
+      },
+    });
   } catch (err) {
     next(err);
   }

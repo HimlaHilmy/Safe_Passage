@@ -107,11 +107,7 @@ export default function ProviderOverviewPage() {
         title={`${user?.name || 'Apex Rapid Response Ltd'}`}
         subtitle="Provider Dispatch Terminal & Active Operations Queue."
         breadcrumbs={['Provider', 'Dispatch Console']}
-        badge={
-          <span className="text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full bg-amber-400/20 text-amber-900 border border-amber-300">
-            Member 4 Module: Dispatch (Himla)
-          </span>
-        }
+
         action={
           <div className="flex items-center gap-3 bg-white p-2 rounded-2xl border border-slate-200 shadow-xs">
             <span className="text-xs font-bold text-slate-600 pl-2">Duty Status:</span>
@@ -120,11 +116,10 @@ export default function ProviderOverviewPage() {
                 setIsAvailable(!isAvailable);
                 addToast(`Duty status set to ${!isAvailable ? 'Available for Dispatches' : 'Off Duty'}`, 'info');
               }}
-              className={`px-3 py-1.5 rounded-xl text-xs font-extrabold flex items-center gap-1.5 transition-all ${
-                isAvailable
+              className={`px-3 py-1.5 rounded-xl text-xs font-extrabold flex items-center gap-1.5 transition-all ${isAvailable
                   ? 'bg-emerald-500 text-white shadow-xs'
                   : 'bg-slate-200 text-slate-600'
-              }`}
+                }`}
             >
               <span className={`w-2 h-2 rounded-full ${isAvailable ? 'bg-white animate-pulse' : 'bg-slate-400'}`} />
               <span>{isAvailable ? 'AVAILABLE FOR DISPATCH' : 'OFF DUTY'}</span>

@@ -28,9 +28,14 @@ import MyIncidentsPage from './pages/traveler/MyIncidentsPage';
 import IncidentTrackingPage from './pages/traveler/IncidentTrackingPage';
 import RoadsidePage from './pages/traveler/RoadsidePage';
 
-// Provider Pages
-import ProviderOverviewPage from './pages/provider/ProviderOverviewPage';
+// Provider Pages (Member 4 - Himla)
+import ProviderDashboardPage from './pages/provider/ProviderDashboardPage';
+import ProviderRequestsPage from './pages/provider/ProviderRequestsPage';
+import ProviderRequestDetailsPage from './pages/provider/ProviderRequestDetailsPage';
 import ProviderJobsPage from './pages/provider/ProviderJobsPage';
+import ProviderMapPage from './pages/provider/ProviderMapPage';
+import ProviderHistoryPage from './pages/provider/ProviderHistoryPage';
+import ProviderProfilePage from './pages/provider/ProviderProfilePage';
 
 // Admin Pages
 import AdminDashboardPage from './pages/admin/AdminDashboardPage';
@@ -68,13 +73,17 @@ export default function App() {
               <Route path="roadside" element={<RoadsidePage />} />
             </Route>
 
-            {/* Provider Role Routes */}
+            {/* Provider Role Routes (Member 4 - Himla) */}
             <Route path="/provider" element={<ProviderLayout />}>
-              <Route index element={<ProviderOverviewPage />} />
-              <Route path="requests" element={<ProviderOverviewPage />} />
+              <Route index element={<Navigate to="/provider/dashboard" replace />} />
+              <Route path="dashboard" element={<ProviderDashboardPage />} />
+              <Route path="requests" element={<ProviderRequestsPage />} />
+              <Route path="requests/:id" element={<ProviderRequestDetailsPage />} />
               <Route path="jobs" element={<ProviderJobsPage />} />
-              <Route path="navigation" element={<ServicesDirectoryPage />} />
-              <Route path="history" element={<ProviderJobsPage />} />
+              <Route path="map" element={<ProviderMapPage />} />
+              <Route path="navigation" element={<Navigate to="/provider/map" replace />} />
+              <Route path="history" element={<ProviderHistoryPage />} />
+              <Route path="profile" element={<ProviderProfilePage />} />
             </Route>
 
             {/* Admin Role Routes */}
