@@ -43,7 +43,7 @@ const assistanceRequestSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ['Pending', 'Accepted', 'En Route', 'On Scene', 'Completed', 'Declined', 'Cancelled'],
+      enum: ['Pending', 'Accepted', 'En Route', 'Arrived', 'On Scene', 'In Progress', 'Completed', 'Declined', 'Cancelled'],
       default: 'Pending',
     },
     dispatchNotes: {
@@ -54,10 +54,42 @@ const assistanceRequestSchema = new mongoose.Schema(
       type: Date,
       default: null,
     },
+    enRouteAt: {
+      type: Date,
+      default: null,
+    },
+    arrivedAt: {
+      type: Date,
+      default: null,
+    },
+    inProgressAt: {
+      type: Date,
+      default: null,
+    },
     completedAt: {
       type: Date,
       default: null,
     },
+    timeline: [
+      {
+        status: {
+          type: String,
+          required: true,
+        },
+        timestamp: {
+          type: Date,
+          default: Date.now,
+        },
+        notes: {
+          type: String,
+          default: '',
+        },
+        updatedBy: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'User',
+        },
+      },
+    ],
   },
   {
     timestamps: true,

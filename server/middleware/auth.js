@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const mongoose = require('mongoose');
 const User = require('../models/User');
 
 /**
@@ -29,14 +30,16 @@ const protect = async (req, res, next) => {
     );
 
     // If database is connected, fetch fresh user record; otherwise use decoded token payload
-    try {
-      const user = await User.findById(decoded.id).select('-passwordHash');
-      if (user) {
-        req.user = user;
-        return next();
+    if (mongoose.connection.readyState === 1) {
+      try {
+        const user = await User.findById(decoded.id).select('-passwordHash');
+        if (user) {
+          req.user = user;
+          return next();
+        }
+      } catch {
+        // Fallback to decoded payload in case DB is offline/in-memory
       }
-    } catch {
-      // Fallback to decoded payload in case DB is offline/in-memory
     }
 
     req.user = {
@@ -45,6 +48,8 @@ const protect = async (req, res, next) => {
       name: decoded.name || 'User',
       email: decoded.email || 'user@safepassage.org',
       role: decoded.role || 'traveler',
+      accountStatus: decoded.accountStatus || 'active',
+      providerDetails: decoded.providerDetails || null,
     };
 
     next();
