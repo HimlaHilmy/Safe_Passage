@@ -27,13 +27,22 @@ export default function DashboardTopbar({ onOpenMobile }) {
           <Menu className="w-6 h-6" />
         </button>
 
-        <div>
-          <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
-            Safe Passage System
-          </span>
-          <h2 className="text-sm sm:text-base font-extrabold text-brand-navy capitalize">
-            {user?.role || 'Traveler'} Console
-          </h2>
+        <div className="flex items-center gap-3">
+          <Link to="/" className="shrink-0" title="Safe Passage Home">
+            <img
+              src="/logo-transparent.png"
+              alt="Safe Passage Logo"
+              className="w-9 h-9 rounded-xl border border-slate-200/80 bg-white p-0.5 object-contain shadow-xs hover:scale-105 transition-transform"
+            />
+          </Link>
+          <div>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+              Safe Passage System
+            </span>
+            <h2 className="text-sm sm:text-base font-extrabold text-brand-navy capitalize leading-tight">
+              {user?.role || 'Traveler'} Console
+            </h2>
+          </div>
         </div>
       </div>
 

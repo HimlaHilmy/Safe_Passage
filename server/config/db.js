@@ -3,20 +3,21 @@ const mongoose = require('mongoose');
 let isConnected = false;
 
 const connectDB = async () => {
-  const uri = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/safe_passage';
-  
+  let uri = process.env.MONGODB_URI || process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/safe_passage';
+
   try {
     const conn = await mongoose.connect(uri, {
-      serverSelectionTimeoutMS: 5000, // Timeout after 5s instead of hanging indefinitely
+      dbName: 'safe_passage',
+      serverSelectionTimeoutMS: 8000,
     });
     isConnected = true;
-    console.log(`[Database] MongoDB Connected successfully: ${conn.connection.host}`);
+    console.log(`[Database] MongoDB Connected successfully: ${conn.connection.host} (DB: ${conn.connection.name})`);
     return conn;
   } catch (error) {
     isConnected = false;
-    console.warn(`[Database Warning] Could not connect to MongoDB at ${uri}.`);
+    console.warn(`[Database Warning] Could not connect to MongoDB at ${uri.replace(/:([^:@]+)@/, ':****@')}.`);
     console.warn(`[Database Warning] Reason: ${error.message}`);
-    console.warn(`[Database Notice] Backend will operate with in-memory fallback state so developers can test UI/APIs before starting local MongoDB daemon.`);
+    console.warn(`[Database Notice] Operating in dual-mode fallback state.`);
     return null;
   }
 };
