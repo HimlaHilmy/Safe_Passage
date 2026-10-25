@@ -11,6 +11,7 @@ const serviceRoutes = require('./routes/serviceRoutes');
 const assistanceRoutes = require('./routes/assistanceRoutes');
 const providerRoutes = require('./routes/providerRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const uploadRoutes = require('./routes/uploadRoutes');
 
 const app = express();
 
@@ -46,6 +47,7 @@ app.get('/api/health', (req, res) => {
       { name: 'Case Lifecycle Manager', owner: 'J.K.S. Jayasundara', prefix: '/api/incidents/:id/status' },
       { name: 'Dispatch & Provider Portal', owner: 'M.H.F. Himla', prefix: '/api/assistance-requests' },
       { name: 'Admin Analytics', owner: 'R.P.J.H. Hirunika', prefix: '/api/admin' },
+      { name: 'Cloudinary WebP Media Service', owner: 'Platform Storage', prefix: '/api/upload' },
     ],
   });
 });
@@ -57,6 +59,7 @@ app.use('/api/services', serviceRoutes);
 app.use('/api/assistance-requests', assistanceRoutes);
 app.use('/api/providers', providerRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/upload', uploadRoutes);
 
 // 404 Handler for undefined routes
 app.use('*', (req, res) => {
