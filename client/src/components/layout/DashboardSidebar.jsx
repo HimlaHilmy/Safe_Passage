@@ -19,6 +19,7 @@ import {
   FileText,
   LogOut,
   ChevronRight,
+  TrendingUp,
   Shield
 } from 'lucide-react';
 
@@ -57,11 +58,12 @@ export default function DashboardSidebar({ mobileOpen = false, onCloseMobile }) 
       { label: 'Provider Profile', path: '/provider/profile', icon: ShieldCheck },
     ],
     admin: [
-      { label: 'Analytics Overview', path: '/admin', icon: LayoutDashboard, end: true },
+      { label: 'Command Dashboard', path: '/admin/dashboard', icon: LayoutDashboard },
       { label: 'Incident Management', path: '/admin/incidents', icon: AlertOctagon },
-      { label: 'User Management', path: '/admin/users', icon: Users },
+      { label: 'Analytics & Reports', path: '/admin/analytics', icon: TrendingUp },
+      { label: 'User Directory', path: '/admin/users', icon: Users },
       { label: 'Provider Approvals', path: '/admin/providers', icon: ShieldCheck },
-      { label: 'Emergency Directory', path: '/admin/services', icon: Building2 },
+      { label: 'Emergency Services', path: '/admin/services', icon: Building2 },
       { label: 'System Audit Logs', path: '/admin/audit-logs', icon: FileText },
     ],
   };
@@ -111,7 +113,7 @@ export default function DashboardSidebar({ mobileOpen = false, onCloseMobile }) 
               </span>
             </div>
             <p className="text-xs text-slate-300 font-semibold mt-1 truncate">
-              {user?.name || 'Authorized User'}
+              {user?.name || 'Authorized Administrator'}
             </p>
           </div>
 
@@ -156,7 +158,7 @@ export default function DashboardSidebar({ mobileOpen = false, onCloseMobile }) 
           <div className="flex items-center justify-between gap-3 mb-3 px-2">
             <div className="flex items-center gap-2.5 min-w-0">
               <div className="w-8 h-8 rounded-full bg-brand-teal text-brand-navy font-bold flex items-center justify-center text-xs shrink-0">
-                {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
+                {user?.name ? user.name.charAt(0).toUpperCase() : 'A'}
               </div>
               <div className="min-w-0">
                 <div className="text-xs font-bold text-white truncate">{user?.name}</div>
