@@ -478,3 +478,4 @@ export default function AdminIncidentDetailPage() {
     </div>
   );
 }
+
