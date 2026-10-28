@@ -5,6 +5,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import PageHeader from '../../components/common/PageHeader';
 import Table from '../../components/common/Table';
+import Card from '../../components/common/Card';
 import StatusBadge from '../../components/common/StatusBadge';
 import Button from '../../components/common/Button';
 import SearchBar from '../../components/common/SearchBar';
@@ -73,6 +74,7 @@ export default function AdminIncidentsPage() {
       const data = await res.json();
       if (res.ok && data.success) {
         setIncidents(data.data || []);
+        if (data.pagination) setPagination(data.pagination);
       }
     } catch {
       // Fallback
@@ -174,7 +176,7 @@ export default function AdminIncidentsPage() {
     {
       title: 'Category',
       dataIndex: 'category',
-      render: (cat) => <span className="text-xs font-semibold text-slate-600">{cat}</span>,
+      render: (cat) => <span className="text-xs font-semibold text-slate-700">{cat}</span>,
     },
     {
       title: 'Severity',
@@ -327,6 +329,253 @@ export default function AdminIncidentsPage() {
         incidentId={selectedIncidentId}
         onIncidentUpdated={fetchIncidents}
       />
+
+      {/* Filter and Search Bar Card */}
+      <Card className="border border-slate-200">
+        <form onSubmit={handleSearchSubmit} className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
+            {/* Search Input */}
+            <div className="md:col-span-4 relative">
+              <input
+                type="text"
+                placeholder="Search by title, location, or traveler..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full rounded-xl border border-slate-200 bg-slate-50/50 pl-10 pr-4 py-2 text-xs text-brand-text font-medium focus:outline-none focus:ring-2 focus:ring-brand-teal focus:bg-white"
+              />
+              <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+            </div>
+
+            {/* Category Select */}
+            <div className="md:col-span-2">
+              <select
+                value={selectedCategory}
+                onChange={(e) => {
+                  setSelectedCategory(e.target.value);
+                  setCurrentPage(1);
+                }}
+                className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs text-slate-700 font-semibold focus:outline-none focus:ring-2 focus:ring-brand-teal"
+              >
+                <option value="">All Categories</option>
+                {CATEGORIES.map((cat) => (
+                  <option key={cat} value={cat}>
+                    {cat}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Severity Select */}
+            <div className="md:col-span-2">
+              <select
+                value={selectedSeverity}
+                onChange={(e) => {
+                  setSelectedSeverity(e.target.value);
+                  setCurrentPage(1);
+                }}
+                className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs text-slate-700 font-semibold focus:outline-none focus:ring-2 focus:ring-brand-teal"
+              >
+                <option value="">All Severities</option>
+                {SEVERITIES.map((sev) => (
+                  <option key={sev} value={sev}>
+                    {sev} Priority
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Status Select */}
+            <div className="md:col-span-2">
+              <select
+                value={selectedStatus}
+                onChange={(e) => {
+                  setSelectedStatus(e.target.value);
+                  setCurrentPage(1);
+                }}
+                className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs text-slate-700 font-semibold focus:outline-none focus:ring-2 focus:ring-brand-teal"
+              >
+                <option value="">All Statuses</option>
+                {STATUSES.map((stat) => (
+                  <option key={stat} value={stat}>
+                    {stat}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Actions */}
+            <div className="md:col-span-2 flex items-center gap-2">
+              <Button type="submit" variant="primary" size="sm" className="w-full">
+                Filter
+              </Button>
+              <button
+                type="button"
+                onClick={handleResetFilters}
+                className="p-2 rounded-xl text-slate-400 hover:text-brand-navy hover:bg-slate-100 transition-colors"
+                title="Reset Filters"
+              >
+                <RotateCcw className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+
+          {/* Date Range Row */}
+          <div className="flex flex-wrap items-center gap-4 pt-2 border-t border-slate-100 text-xs text-slate-500 font-medium">
+            <span className="flex items-center gap-1 font-semibold text-slate-600">
+              <Calendar className="w-3.5 h-3.5 text-brand-teal" />
+              Date Filter:
+            </span>
+            <div className="flex items-center gap-2">
+              <span>From</span>
+              <input
+                type="date"
+                value={startDate}
+                onChange={(e) => {
+                  setStartDate(e.target.value);
+                  setCurrentPage(1);
+                }}
+                className="rounded-lg border border-slate-200 px-2 py-1 text-xs text-slate-700"
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <span>To</span>
+              <input
+                type="date"
+                value={endDate}
+                onChange={(e) => {
+                  setEndDate(e.target.value);
+                  setCurrentPage(1);
+                }}
+                className="rounded-lg border border-slate-200 px-2 py-1 text-xs text-slate-700"
+              />
+            </div>
+            {(selectedCategory || selectedSeverity || selectedStatus || searchTerm || startDate || endDate) && (
+              <span className="ml-auto text-xs font-semibold text-brand-teal">
+                Active Filter: Showing {pagination.total || incidents.length} Cases
+              </span>
+            )}
+          </div>
+        </form>
+      </Card>
+
+      {/* Main View: Table vs Map */}
+      {viewMode === 'table' ? (
+        <div className="space-y-4">
+          <Table
+            columns={columns}
+            data={incidents}
+            isLoading={loading}
+            emptyMessage="No incidents match the selected search or filter criteria."
+          />
+
+          {/* Pagination Controls */}
+          {pagination.totalPages > 1 && (
+            <div className="flex items-center justify-between px-2 pt-2 text-xs text-slate-500 font-medium">
+              <div>
+                Page {pagination.page} of {pagination.totalPages} ({pagination.total} Total Cases)
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={pagination.page <= 1}
+                  onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+                >
+                  Previous
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={pagination.page >= pagination.totalPages}
+                  onClick={() => setCurrentPage((p) => Math.min(p + 1, pagination.totalPages))}
+                >
+                  Next
+                </Button>
+              </div>
+            </div>
+          )}
+        </div>
+      ) : (
+        <div className="space-y-3">
+          <SafePassageMap
+            markers={incidents}
+            height="560px"
+            className="w-full shadow-card border border-slate-200"
+          />
+          <div className="text-xs text-slate-500 text-center">
+            Click on any marker pin to preview emergency details and open the comprehensive case audit room.
+          </div>
+        </div>
+      )}
+
+      {/* Quick Status Update Modal */}
+      {updateModalOpen && selectedIncident && (
+        <Modal
+          isOpen={updateModalOpen}
+          onClose={() => setUpdateModalOpen(false)}
+          title={`Quick Status Update: #${String(selectedIncident._id).slice(-6)}`}
+        >
+          <form onSubmit={handleStatusSubmit} className="space-y-4">
+            <div>
+              <label className="text-xs font-bold text-slate-600 block mb-1">
+                Incident Title
+              </label>
+              <div className="text-sm font-bold text-brand-navy bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+                {selectedIncident.title}
+              </div>
+            </div>
+
+            <div>
+              <label className="text-xs font-bold text-slate-600 block mb-1">
+                Target Lifecycle Status
+              </label>
+              <select
+                value={newStatus}
+                onChange={(e) => setNewStatus(e.target.value)}
+                className="w-full rounded-xl border border-slate-200 bg-white p-2.5 text-xs text-slate-700 font-bold focus:ring-2 focus:ring-brand-teal"
+              >
+                {STATUSES.map((st) => (
+                  <option key={st} value={st}>
+                    {st}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="text-xs font-bold text-slate-600 block mb-1">
+                Operator Override Notes
+              </label>
+              <textarea
+                rows={3}
+                placeholder="Operational notes explaining why this status was modified..."
+                value={updateNotes}
+                onChange={(e) => setUpdateNotes(e.target.value)}
+                className="w-full rounded-xl border border-slate-200 bg-white p-2.5 text-xs text-slate-700 font-medium focus:ring-2 focus:ring-brand-teal"
+              />
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setUpdateModalOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                variant="primary"
+                size="sm"
+                loading={updating}
+              >
+                Confirm Update
+              </Button>
+            </div>
+          </form>
+        </Modal>
+      )}
     </div>
   );
 }

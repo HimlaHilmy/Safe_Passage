@@ -24,6 +24,7 @@ let memoryIncidents = [
     title: 'Engine overheating on Mountain Pass A4',
     description: 'Vehicle radiator steam observed, unable to proceed. Two passengers on board with limited water.',
     severity: 'High',
+    incidentDate: new Date(Date.now() - 7200000),
     location: {
       type: 'Point',
       coordinates: [80.6337, 7.2906], // Kandy area
@@ -70,6 +71,7 @@ let memoryIncidents = [
     title: 'Severe allergic reaction to food ingredient',
     description: 'Difficulty breathing, facial swelling. Antihistamine administered but condition worsening.',
     severity: 'Critical',
+    incidentDate: new Date(Date.now() - 14400000),
     location: {
       type: 'Point',
       coordinates: [79.8612, 6.9271], // Colombo area
@@ -109,11 +111,12 @@ let memoryIncidents = [
     title: 'Missed trail marker in dense fog',
     description: 'Hiker disoriented off marked path. Battery at 25%, flashlight operational, safe from precipice.',
     severity: 'Medium',
+    incidentDate: new Date(Date.now() - 21600000),
     location: {
       type: 'Point',
-      coordinates: [80.7891, 6.8096], // Horton Plains
-      address: 'Horton Plains National Park trail 3',
-      landmark: 'Between Chimney Pond and Mini Worlds End',
+      coordinates: [80.7891, 6.8096],
+      address: 'Central Station Food Court, Colombo',
+      landmark: 'Platform 2 entrance',
     },
     media: [],
     status: INCIDENT_STATUS.UNDER_REVIEW,
@@ -192,12 +195,53 @@ let memoryCaseLogs = [
  */
 exports.createIncident = async (req, res, next) => {
   try {
-    const { category, title, description, severity, location, media } = req.body;
+    const { category, title, description, severity, location, media, incidentDate } = req.body;
 
-    if (!category || !title || !description || !location || !location.coordinates) {
+    // Validate Category
+    const allowedCategories = [
+      'Medical Emergency',
+      'Lost Passport or Documents',
+      'Theft or Security Incident',
+      'Vehicle Breakdown',
+      'Other Emergency',
+      'Roadside & Vehicle Breakdown',
+      'Crime & Theft',
+      'Natural Hazard & Weather',
+      'Fire Emergency',
+      'Lost & Stranded',
+    ];
+
+    if (!category || !allowedCategories.includes(category)) {
       return res.status(400).json({
         success: false,
-        message: 'Category, title, description, and valid GeoJSON location coordinates are required.',
+        message: `Please select a valid emergency category. Permitted: ${allowedCategories.slice(0, 5).join(', ')}`,
+        error: 'INVALID_CATEGORY',
+      });
+    }
+
+    // Validate Title
+    if (!title || typeof title !== 'string' || title.trim().length < 3) {
+      return res.status(400).json({
+        success: false,
+        message: 'Incident title is required and must be at least 3 characters long.',
+        error: 'INVALID_TITLE',
+      });
+    }
+
+    if (title.trim().length > 150) {
+      return res.status(400).json({
+        success: false,
+        message: 'Incident title cannot exceed 150 characters.',
+        error: 'TITLE_TOO_LONG',
+      });
+    }
+
+    // Validate Description
+    if (!description || typeof description !== 'string' || description.trim().length < 10) {
+      return res.status(400).json({
+        success: false,
+        message: 'Detailed incident description is required (at least 10 characters).',
+        error: 'INVALID_DESCRIPTION',
       });
     }
 
@@ -207,16 +251,17 @@ exports.createIncident = async (req, res, next) => {
       incidentReference: reference,
       travelerId: req.user.id || req.user._id,
       category,
-      title,
-      description,
-      severity: severity || 'Medium',
+      title: title.trim(),
+      description: description.trim(),
+      severity: chosenSeverity,
+      incidentDate: parsedIncidentDate,
       location: {
         type: 'Point',
-        coordinates: location.coordinates, // [lng, lat]
-        address: location.address || '',
-        landmark: location.landmark || '',
+        coordinates: [lng, lat],
+        address: location.address ? location.address.trim() : 'Location pinned via map',
+        landmark: location.landmark ? location.landmark.trim() : '',
       },
-      media: media || [],
+      media: Array.isArray(media) ? media : [],
       status: INCIDENT_STATUS.SUBMITTED,
     };
 
@@ -304,15 +349,17 @@ exports.createIncident = async (req, res, next) => {
 };
 
 /**
- * @desc    Get all incidents (filtered by role: traveler sees own, admin/provider sees permitted)
+ * @desc    Get all incidents (filtered by role: traveler sees only own, admin/provider sees permitted)
  * @route   GET /api/incidents
  * @access  Private
+ * @owner   Member 1 (Dulanjani)
  */
 exports.getIncidents = async (req, res, next) => {
   try {
     const { status, category, severity, search } = req.query;
     const filter = {};
 
+    // STRICT ACCESS CONTROL: Authenticated travelers ONLY see their own incidents
     if (req.user.role === 'traveler') {
       filter.travelerId = req.user.id || req.user._id;
     }
@@ -320,6 +367,14 @@ exports.getIncidents = async (req, res, next) => {
     if (status) filter.status = status;
     if (category) filter.category = category;
     if (severity) filter.severity = severity;
+    if (search) {
+      filter.$or = [
+        { title: { $regex: search, $options: 'i' } },
+        { description: { $regex: search, $options: 'i' } },
+        { incidentReference: { $regex: search, $options: 'i' } },
+        { referenceNumber: { $regex: search, $options: 'i' } },
+      ];
+    }
 
     if (isDbConnected()) {
       try {
@@ -372,9 +427,10 @@ exports.getIncidents = async (req, res, next) => {
 };
 
 /**
- * @desc    Get single incident by ID
+ * @desc    Get single incident by ID with ownership enforcement
  * @route   GET /api/incidents/:id
  * @access  Private
+ * @owner   Member 1 & Member 3
  */
 exports.getIncidentById = async (req, res, next) => {
   try {

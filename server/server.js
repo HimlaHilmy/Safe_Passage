@@ -4,6 +4,7 @@ const { Server } = require('socket.io');
 const app = require('./app');
 const { connectDB } = require('./config/db');
 const socketHandler = require('./sockets/socketHandler');
+const seedInitialData = require('./utils/seedData');
 
 const PORT = process.env.PORT || 5000;
 const server = http.createServer(app);
@@ -25,6 +26,7 @@ app.set('io', io);
 // Start server after connecting to database
 const startServer = async () => {
   await connectDB();
+  await seedInitialData();
 
   server.on('error', (err) => {
     if (err.code === 'EADDRINUSE') {

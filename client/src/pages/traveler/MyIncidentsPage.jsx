@@ -32,6 +32,9 @@ export default function MyIncidentsPage() {
 
   const [incidents, setIncidents] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Filters & Search
   const [statusFilter, setStatusFilter] = useState('');
   const [severityFilter, setSeverityFilter] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
@@ -74,12 +77,19 @@ export default function MyIncidentsPage() {
       if (severityFilter) params.append('severity', severityFilter);
       if (params.toString()) url += `?${params.toString()}`;
 
-      const res = await fetch(url, {
-        headers: { Authorization: `Bearer ${token}` },
+      const queryString = params.toString() ? `?${params.toString()}` : '';
+      const res = await fetch(`${apiUrl}/incidents${queryString}`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
       });
+
       const data = await res.json();
       if (res.ok && data.success) {
         setIncidents(data.data || []);
+      } else {
+        throw new Error(data.message || 'Failed to retrieve incidents');
       }
     } catch {
       // Offline / Memory fallback
@@ -207,8 +217,8 @@ export default function MyIncidentsPage() {
             <MapPin className="w-3 h-3 text-brand-teal shrink-0" />
             <span className="truncate">{row.location?.address || 'Coordinates pinned'}</span>
           </div>
-        </div>
-      ),
+        );
+      },
     },
     {
       title: 'Severity',
@@ -277,6 +287,11 @@ export default function MyIncidentsPage() {
         title="Emergency Case Tracking"
         subtitle="Live incident monitoring, lifecycle timeline progression, and emergency case history."
         breadcrumbs={['Traveler', 'My Incidents']}
+        badge={
+          <span className="text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full bg-brand-navy text-white">
+            {filteredIncidents.length} Reported {filteredIncidents.length === 1 ? 'Emergency' : 'Emergencies'}
+          </span>
+        }
         action={
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="sm" icon={RefreshCw} onClick={fetchMyIncidents}>

@@ -105,7 +105,7 @@ export default function IncidentTrackingPage() {
         _id: id || '65f000000000000000000010',
         incidentReference: 'SP-REF-000010',
         title: 'Engine overheating on Mountain Pass A4',
-        category: 'Roadside & Vehicle Breakdown',
+        category: 'Vehicle Breakdown',
         severity: 'High',
         description:
           'Vehicle radiator steam observed, unable to proceed. Two passengers on board with limited water.',
@@ -199,7 +199,7 @@ export default function IncidentTrackingPage() {
       } else {
         throw new Error(data.message || 'Illegal transition');
       }
-    } catch (err) {
+    } catch {
       // Memory fallback update
       if (incident) {
         const prevStatus = incident.status;
