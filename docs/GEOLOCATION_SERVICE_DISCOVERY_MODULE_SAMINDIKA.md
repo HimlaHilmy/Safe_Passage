@@ -196,3 +196,4 @@ The test suite (`server/test_service_discovery_module.js`) exercises 37 test spe
 6. **Lookup by ID:** Validates 200 OK for existing records and 404 for non-existent IDs.
 7. **Frontend Build:** Verified with `npm --prefix client run build` with zero linting or bundling errors.
 8. **Responsive Layouts:** Zero horizontal overflow (`overflow-x-hidden`) tested on both Desktop (1440px) and Mobile (375px) viewports with responsive tab toggling (`List View` / `Map View`).
+
