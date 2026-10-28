@@ -21,9 +21,10 @@ import LoginPage from './pages/auth/LoginPage';
 import RegisterPage from './pages/auth/RegisterPage';
 import ForgotPasswordPage from './pages/auth/ForgotPasswordPage';
 
-// Traveler Pages
 import TravelerOverviewPage from './pages/traveler/TravelerOverviewPage';
 import ReportEmergencyPage from './pages/traveler/ReportEmergencyPage';
+import TravelerServicesPage from './pages/traveler/TravelerServicesPage';
+import TravelerMapPage from './pages/traveler/TravelerMapPage';
 import MyIncidentsPage from './pages/traveler/MyIncidentsPage';
 import IncidentTrackingPage from './pages/traveler/IncidentTrackingPage';
 import RoadsidePage from './pages/traveler/RoadsidePage';
@@ -67,7 +68,8 @@ export default function App() {
             <Route path="/traveler" element={<TravelerLayout />}>
               <Route index element={<TravelerOverviewPage />} />
               <Route path="report" element={<ReportEmergencyPage />} />
-              <Route path="services" element={<ServicesDirectoryPage />} />
+              <Route path="services" element={<TravelerServicesPage />} />
+              <Route path="map" element={<TravelerMapPage />} />
               <Route path="incidents" element={<MyIncidentsPage />} />
               <Route path="incidents/:id" element={<IncidentTrackingPage />} />
               <Route path="roadside" element={<RoadsidePage />} />

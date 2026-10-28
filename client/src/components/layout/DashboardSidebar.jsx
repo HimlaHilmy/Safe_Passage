@@ -32,9 +32,9 @@ export default function DashboardSidebar({ mobileOpen = false, onCloseMobile }) 
       { label: 'Overview', path: '/traveler', icon: LayoutDashboard, end: true },
       { label: 'Report Emergency', path: '/traveler/report', icon: AlertOctagon, highlight: true },
       { label: 'Find Services', path: '/traveler/services', icon: MapPin },
+      { label: 'Interactive Map', path: '/traveler/map', icon: Compass },
       { label: 'My Incidents', path: '/traveler/incidents', icon: Clock },
       { label: 'Roadside Assistance', path: '/traveler/roadside', icon: Wrench },
-      { label: 'Explore Map', path: '/services', icon: Compass },
     ],
     provider: [
       { label: 'Provider Dashboard', path: '/provider/dashboard', icon: LayoutDashboard },

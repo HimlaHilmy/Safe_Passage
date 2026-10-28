@@ -25,6 +25,8 @@ app.set('io', io);
 // Start server after connecting to database
 const startServer = async () => {
   await connectDB();
+  const { seedEmergencyServices } = require('./controllers/serviceController');
+  await seedEmergencyServices();
 
   server.listen(PORT, () => {
     console.log(`=======================================================`);
