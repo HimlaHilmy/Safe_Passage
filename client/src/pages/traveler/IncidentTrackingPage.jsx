@@ -21,7 +21,8 @@ import {
   RefreshCw,
   Navigation,
   ChevronRight,
-  XCircle
+  XCircle,
+  Image as ImageIcon,
 } from 'lucide-react';
 
 const ORDERED_STATUSES = [
@@ -72,8 +73,10 @@ export default function IncidentTrackingPage() {
       // Fallback demo data
       setIncident({
         _id: id || '65f000000000000000000010',
+        incidentReference: 'INC-20261028-1001',
+        referenceNumber: 'INC-20261028-1001',
         title: 'Engine overheating on Mountain Pass A4',
-        category: 'Roadside & Vehicle Breakdown',
+        category: 'Vehicle Breakdown',
         severity: 'High',
         description: 'Vehicle radiator steam observed, unable to proceed. Two passengers on board with limited water.',
         status: 'Assistance Dispatched',
@@ -83,6 +86,13 @@ export default function IncidentTrackingPage() {
           address: 'Route A4, Mile Marker 42, Central Province',
           landmark: 'Near Viewpoint Cafe',
         },
+        media: [
+          {
+            url: 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=800&q=80',
+            type: 'image',
+            caption: 'Radiator steam and warning light on dashboard',
+          },
+        ],
         estimatedArrivalTimeMinutes: 18,
         assignedProvider: {
           name: 'Apex Rapid Response Ltd',
@@ -157,7 +167,7 @@ export default function IncidentTrackingPage() {
       } else {
         throw new Error(data.message || 'Illegal transition');
       }
-    } catch (err) {
+    } catch {
       // Memory fallback update
       if (incident) {
         setIncident({ ...incident, status: nextStatus });
@@ -194,13 +204,18 @@ export default function IncidentTrackingPage() {
   }
 
   const currentStatusIdx = ORDERED_STATUSES.indexOf(incident.status);
-  const lat = incident.location?.coordinates?.[1] || 7.2906;
-  const lng = incident.location?.coordinates?.[0] || 80.6337;
+  const lat = incident.location?.coordinates?.[1] || 6.9271;
+  const lng = incident.location?.coordinates?.[0] || 79.8612;
+  const incidentRef =
+    incident.incidentReference ||
+    incident.referenceNumber ||
+    (incident._id ? `INC-${incident._id.slice(-6).toUpperCase()}` : 'INC-UNKNOWN');
+  const provider = incident.assignedProvider || incident.assignedProviderId;
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8">
+    <div className="max-w-6xl mx-auto space-y-8 animate-fadeIn">
       <PageHeader
-        title={`Incident #${incident._id.substring(incident._id.length - 6).toUpperCase()}`}
+        title={incidentRef}
         subtitle={`Reported on ${new Date(incident.createdAt).toLocaleString()}`}
         breadcrumbs={['Traveler', 'My Incidents', 'Lifecycle Tracking']}
         badge={
@@ -252,7 +267,6 @@ export default function IncidentTrackingPage() {
             {ORDERED_STATUSES.map((step, idx) => {
               const isPast = idx < currentStatusIdx;
               const isCurrent = idx === currentStatusIdx;
-              const isFuture = idx > currentStatusIdx;
 
               return (
                 <div key={step} className="relative z-10 flex flex-col items-center text-center">
@@ -353,25 +367,56 @@ export default function IncidentTrackingPage() {
               )}
             </div>
 
+            {/* Attached Scene Photos Preview */}
+            {incident.media && incident.media.length > 0 && (
+              <div className="mt-4 pt-4 border-t border-slate-100">
+                <div className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-2 flex items-center gap-1.5">
+                  <ImageIcon className="w-3.5 h-3.5 text-brand-teal" />
+                  <span>Attached Scene Evidence ({incident.media.length})</span>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                  {incident.media.map((item, idx) => (
+                    <div
+                      key={idx}
+                      className="rounded-xl overflow-hidden border border-slate-200 bg-slate-50 shadow-2xs"
+                    >
+                      <img
+                        src={item.url}
+                        alt={item.caption || 'Scene evidence'}
+                        className="w-full h-24 object-cover hover:scale-105 transition-transform duration-200"
+                      />
+                      {item.caption && (
+                        <div className="p-1.5 text-[10px] text-slate-600 bg-white truncate">
+                          {item.caption}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Assigned Provider Callout */}
-            {incident.assignedProvider && (
+            {provider && (
               <div className="mt-4 p-4 rounded-2xl bg-brand-navy text-white flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
                   <div className="text-[10px] font-bold uppercase tracking-wider text-brand-teal">
                     Assigned Response Unit
                   </div>
-                  <h5 className="text-sm font-bold">{incident.assignedProvider.name}</h5>
+                  <h5 className="text-sm font-bold">{provider.name}</h5>
                   <div className="text-xs text-slate-300 mt-0.5">
                     ETA: {incident.estimatedArrivalTimeMinutes || 15} minutes
                   </div>
                 </div>
-                <a
-                  href={`tel:${incident.assignedProvider.phone}`}
-                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-brand-teal text-brand-navy font-bold text-xs"
-                >
-                  <Phone className="w-3.5 h-3.5" />
-                  <span>Call Crew ({incident.assignedProvider.phone})</span>
-                </a>
+                {provider.phone && (
+                  <a
+                    href={`tel:${provider.phone}`}
+                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-brand-teal text-brand-navy font-bold text-xs"
+                  >
+                    <Phone className="w-3.5 h-3.5" />
+                    <span>Call Crew ({provider.phone})</span>
+                  </a>
+                )}
               </div>
             )}
           </Card>

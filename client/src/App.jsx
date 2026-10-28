@@ -66,7 +66,9 @@ export default function App() {
             {/* Traveler Role Routes */}
             <Route path="/traveler" element={<TravelerLayout />}>
               <Route index element={<TravelerOverviewPage />} />
+              <Route path="dashboard" element={<TravelerOverviewPage />} />
               <Route path="report" element={<ReportEmergencyPage />} />
+              <Route path="report-emergency" element={<ReportEmergencyPage />} />
               <Route path="services" element={<ServicesDirectoryPage />} />
               <Route path="incidents" element={<MyIncidentsPage />} />
               <Route path="incidents/:id" element={<IncidentTrackingPage />} />
