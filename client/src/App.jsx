@@ -37,10 +37,14 @@ import ProviderMapPage from './pages/provider/ProviderMapPage';
 import ProviderHistoryPage from './pages/provider/ProviderHistoryPage';
 import ProviderProfilePage from './pages/provider/ProviderProfilePage';
 
-// Admin Pages
+// Admin Pages (Member 5 - Hirunika)
 import AdminDashboardPage from './pages/admin/AdminDashboardPage';
 import AdminIncidentsPage from './pages/admin/AdminIncidentsPage';
+import AdminIncidentDetailPage from './pages/admin/AdminIncidentDetailPage';
 import AdminUsersPage from './pages/admin/AdminUsersPage';
+import AdminProvidersPage from './pages/admin/AdminProvidersPage';
+import AdminServicesPage from './pages/admin/AdminServicesPage';
+import AdminAnalyticsPage from './pages/admin/AdminAnalyticsPage';
 import AdminAuditLogsPage from './pages/admin/AdminAuditLogsPage';
 
 export default function App() {
@@ -86,13 +90,16 @@ export default function App() {
               <Route path="profile" element={<ProviderProfilePage />} />
             </Route>
 
-            {/* Admin Role Routes */}
+            {/* Admin Role Routes (Member 5 - Hirunika) */}
             <Route path="/admin" element={<AdminLayout />}>
-              <Route index element={<AdminDashboardPage />} />
+              <Route index element={<Navigate to="/admin/dashboard" replace />} />
+              <Route path="dashboard" element={<AdminDashboardPage />} />
               <Route path="incidents" element={<AdminIncidentsPage />} />
+              <Route path="incidents/:id" element={<AdminIncidentDetailPage />} />
               <Route path="users" element={<AdminUsersPage />} />
-              <Route path="providers" element={<AdminUsersPage />} />
-              <Route path="services" element={<ServicesDirectoryPage />} />
+              <Route path="providers" element={<AdminProvidersPage />} />
+              <Route path="services" element={<AdminServicesPage />} />
+              <Route path="analytics" element={<AdminAnalyticsPage />} />
               <Route path="audit-logs" element={<AdminAuditLogsPage />} />
             </Route>
 
