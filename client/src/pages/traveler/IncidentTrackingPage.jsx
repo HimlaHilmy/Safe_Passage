@@ -1,38 +1,28 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useParams } from 'react-router-dom';
+import io from 'socket.io-client';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import PageHeader from '../../components/common/PageHeader';
 import Card from '../../components/common/Card';
 import StatusBadge from '../../components/common/StatusBadge';
 import Button from '../../components/common/Button';
-import SafePassageMap from '../../components/maps/MapContainer';
 import ConfirmDialog from '../../components/common/ConfirmDialog';
+import IncidentLifecycleStepper from '../../components/case-lifecycle/IncidentLifecycleStepper';
+import CaseAuditTimeline from '../../components/case-lifecycle/CaseAuditTimeline';
+import IncidentAssignmentCard from '../../components/case-lifecycle/IncidentAssignmentCard';
+import IncidentLocationMapCard from '../../components/case-lifecycle/IncidentLocationMapCard';
 import {
-  Clock,
-  MapPin,
-  Phone,
-  Shield,
-  Truck,
   CheckCircle2,
-  AlertTriangle,
   FileText,
-  UserCheck,
   RefreshCw,
-  Navigation,
-  ChevronRight,
   XCircle,
+  Copy,
+  Check,
+  Send,
+  Radio,
   Image as ImageIcon,
 } from 'lucide-react';
-
-const ORDERED_STATUSES = [
-  'Submitted',
-  'Under Review',
-  'Assigned',
-  'Assistance Dispatched',
-  'In Progress',
-  'Resolved',
-];
 
 export default function IncidentTrackingPage() {
   const { id } = useParams();
@@ -44,28 +34,68 @@ export default function IncidentTrackingPage() {
   const [loading, setLoading] = useState(true);
   const [isUpdating, setIsUpdating] = useState(false);
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
+  const [copiedRef, setCopiedRef] = useState(false);
+  const [caseNote, setCaseNote] = useState('');
+  const [socketConnected, setSocketConnected] = useState(false);
 
   useEffect(() => {
     fetchIncidentDetails();
   }, [id]);
 
+  // Real-time Socket.io Room Tracking
+  useEffect(() => {
+    if (!id) return;
+    const socketUrl = import.meta.env.VITE_SOCKET_URL || 'http://localhost:5001';
+    const socket = io(socketUrl, {
+      transports: ['websocket', 'polling'],
+    });
+
+    socket.on('connect', () => {
+      setSocketConnected(true);
+      socket.emit('join_incident', id);
+    });
+
+    socket.on('incident_updated', (data) => {
+      addToast(`Status updated to ${data.newStatus}`, 'info');
+      fetchIncidentDetails();
+    });
+
+    socket.on('case_log_added', (newLog) => {
+      setCaseLogs((prev) => {
+        if (prev.some((l) => l._id === newLog._id)) return prev;
+        return [...prev, newLog];
+      });
+    });
+
+    socket.on('disconnect', () => {
+      setSocketConnected(false);
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, [id]);
+
   const fetchIncidentDetails = async () => {
     setLoading(true);
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
 
     try {
-      const incRes = await fetch(`${apiUrl}/incidents/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const [incRes, logRes] = await Promise.all([
+        fetch(`${apiUrl}/incidents/${id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+        fetch(`${apiUrl}/incidents/${id}/history`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+      ]);
+
       const incData = await incRes.json();
+      const logData = await logRes.json();
+
       if (incRes.ok && incData.success) {
         setIncident(incData.data);
       }
-
-      const logRes = await fetch(`${apiUrl}/incidents/${id}/history`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const logData = await logRes.json();
       if (logRes.ok && logData.success) {
         setCaseLogs(logData.data || []);
       }
@@ -73,12 +103,12 @@ export default function IncidentTrackingPage() {
       // Fallback demo data
       setIncident({
         _id: id || '65f000000000000000000010',
-        incidentReference: 'INC-20261028-1001',
-        referenceNumber: 'INC-20261028-1001',
+        incidentReference: 'SP-REF-000010',
         title: 'Engine overheating on Mountain Pass A4',
         category: 'Vehicle Breakdown',
         severity: 'High',
-        description: 'Vehicle radiator steam observed, unable to proceed. Two passengers on board with limited water.',
+        description:
+          'Vehicle radiator steam observed, unable to proceed. Two passengers on board with limited water.',
         status: 'Assistance Dispatched',
         location: {
           type: 'Point',
@@ -94,11 +124,14 @@ export default function IncidentTrackingPage() {
           },
         ],
         estimatedArrivalTimeMinutes: 18,
-        assignedProvider: {
+        assignedProviderId: {
           name: 'Apex Rapid Response Ltd',
           phone: '+1 (555) 987-6543',
           rating: 4.9,
-          serviceType: 'Roadside Towing & Emergency Repair',
+          providerDetails: {
+            serviceTypes: ['Roadside Towing & Vehicle Repair', 'Emergency Paramedic Escort'],
+            licenseNumber: 'SL-EMG-9021',
+          },
         },
         createdAt: new Date(Date.now() - 7200000),
       });
@@ -109,7 +142,7 @@ export default function IncidentTrackingPage() {
           updaterRole: 'traveler',
           previousStatus: 'None',
           newStatus: 'Submitted',
-          notes: 'Incident submitted by traveler with GPS coordinates.',
+          notes: 'Emergency reported from mobile device with GPS coordinates.',
           timestamp: new Date(Date.now() - 7200000),
         },
         {
@@ -125,7 +158,7 @@ export default function IncidentTrackingPage() {
           updaterRole: 'admin',
           previousStatus: 'Under Review',
           newStatus: 'Assigned',
-          notes: 'Assigned to Apex Rapid Response patrol unit 4.',
+          notes: 'Assigned to Apex Rapid Response Ltd patrol unit 4.',
           timestamp: new Date(Date.now() - 3600000),
         },
         {
@@ -133,7 +166,7 @@ export default function IncidentTrackingPage() {
           updaterRole: 'provider',
           previousStatus: 'Assigned',
           newStatus: 'Assistance Dispatched',
-          notes: 'Rescue crew en route. Estimated arrival in 18 minutes.',
+          notes: 'Patrol unit en route. Estimated arrival in 18 minutes.',
           timestamp: new Date(Date.now() - 1800000),
         },
       ]);
@@ -142,10 +175,9 @@ export default function IncidentTrackingPage() {
     }
   };
 
-  // Helper to advance to next status for testing lifecycle state machine
   const handleAdvanceStatus = async (nextStatus) => {
     setIsUpdating(true);
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
 
     try {
       const res = await fetch(`${apiUrl}/incidents/${id}/status`, {
@@ -170,13 +202,14 @@ export default function IncidentTrackingPage() {
     } catch {
       // Memory fallback update
       if (incident) {
+        const prevStatus = incident.status;
         setIncident({ ...incident, status: nextStatus });
         setCaseLogs((prev) => [
           ...prev,
           {
             _id: Date.now().toString(),
             updaterRole: user?.role || 'system',
-            previousStatus: incident.status,
+            previousStatus: prevStatus,
             newStatus: nextStatus,
             notes: `Simulated lifecycle transition to ${nextStatus}`,
             timestamp: new Date(),
@@ -189,39 +222,102 @@ export default function IncidentTrackingPage() {
     }
   };
 
-  const handleCancelIncident = async () => {
-    setCancelDialogOpen(false);
-    await handleAdvanceStatus('Cancelled');
+  const handlePostNote = async (e) => {
+    e.preventDefault();
+    if (!caseNote.trim()) return;
+
+    setIsUpdating(true);
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
+
+    try {
+      const res = await fetch(`${apiUrl}/incidents/${id}/notes`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ notes: caseNote.trim() }),
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success) {
+        addToast('Progress note appended to case history', 'success');
+        setCaseNote('');
+        fetchIncidentDetails();
+      } else {
+        throw new Error(data.message || 'Failed to add note');
+      }
+    } catch {
+      // Offline fallback
+      setCaseLogs((prev) => [
+        ...prev,
+        {
+          _id: Date.now().toString(),
+          updaterRole: user?.role || 'traveler',
+          previousStatus: incident?.status || 'Submitted',
+          newStatus: incident?.status || 'Submitted',
+          notes: caseNote.trim(),
+          timestamp: new Date(),
+        },
+      ]);
+      setCaseNote('');
+      addToast('Note recorded in case audit trail', 'success');
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const handleCopyReference = () => {
+    const ref = incident?.incidentReference || incident?.reference || incident?._id;
+    if (ref) {
+      navigator.clipboard.writeText(ref);
+      setCopiedRef(true);
+      setTimeout(() => setCopiedRef(false), 2000);
+      addToast('Incident Reference copied to clipboard', 'info');
+    }
   };
 
   if (loading || !incident) {
     return (
       <div className="min-h-[50vh] flex flex-col items-center justify-center gap-3">
-        <div className="w-8 h-8 rounded-full border-3 border-brand-teal/20 border-t-brand-teal animate-spin" />
-        <span className="text-sm font-semibold text-slate-500">Loading incident lifecycle...</span>
+        <div className="w-10 h-10 rounded-full border-3 border-brand-teal/20 border-t-brand-teal animate-spin" />
+        <span className="text-sm font-semibold text-slate-500">
+          Loading emergency case lifecycle & history...
+        </span>
       </div>
     );
   }
 
-  const currentStatusIdx = ORDERED_STATUSES.indexOf(incident.status);
-  const lat = incident.location?.coordinates?.[1] || 6.9271;
-  const lng = incident.location?.coordinates?.[0] || 79.8612;
-  const incidentRef =
-    incident.incidentReference ||
-    incident.referenceNumber ||
-    (incident._id ? `INC-${incident._id.slice(-6).toUpperCase()}` : 'INC-UNKNOWN');
-  const provider = incident.assignedProvider || incident.assignedProviderId;
+  const refCode = incident.incidentReference || incident.reference || `#${incident._id.slice(-6).toUpperCase()}`;
+  const provider = incident.assignedProviderId?.name
+    ? incident.assignedProviderId
+    : incident.assignedProvider;
+  const isTerminal = incident.status === 'Resolved' || incident.status === 'Cancelled';
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8 animate-fadeIn">
+    <div className="max-w-6xl mx-auto space-y-8 pb-16">
+      {/* Page Header */}
       <PageHeader
-        title={incidentRef}
-        subtitle={`Reported on ${new Date(incident.createdAt).toLocaleString()}`}
-        breadcrumbs={['Traveler', 'My Incidents', 'Lifecycle Tracking']}
+        title={`Incident Case ${refCode}`}
+        subtitle={`Reported on ${new Date(incident.createdAt).toLocaleDateString([], {
+          weekday: 'long',
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+        })}`}
+        breadcrumbs={['Traveler', 'My Incidents', 'Case Lifecycle']}
         badge={
           <div className="flex items-center gap-2">
             <StatusBadge status={incident.status} />
             <StatusBadge status={incident.severity} type="severity" />
+            {socketConnected && (
+              <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-teal-50 text-teal-700 border border-teal-200">
+                <span className="w-1.5 h-1.5 rounded-full bg-brand-teal animate-pulse" />
+                <span>Live Feed Active</span>
+              </span>
+            )}
           </div>
         }
         action={
@@ -232,12 +328,13 @@ export default function IncidentTrackingPage() {
               icon={RefreshCw}
               onClick={fetchIncidentDetails}
             >
-              Refresh Status
+              Refresh
             </Button>
-            {incident.status !== 'Resolved' && incident.status !== 'Cancelled' && (
+            {!isTerminal && (
               <Button
                 variant="emergencyStatic"
                 size="sm"
+                icon={XCircle}
                 onClick={() => setCancelDialogOpen(true)}
               >
                 Cancel SOS
@@ -247,68 +344,71 @@ export default function IncidentTrackingPage() {
         }
       />
 
-      {/* Visual Step-by-Step Lifecycle Progress Tracker */}
+      {/* Hero Summary & Reference Banner */}
+      <div className="p-6 rounded-3xl bg-white border border-slate-200/90 shadow-card flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div className="space-y-2 flex-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              onClick={handleCopyReference}
+              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-slate-100 hover:bg-slate-200 text-brand-navy font-mono text-xs font-black border border-slate-200 transition-colors"
+              title="Click to copy incident reference"
+            >
+              <span>{refCode}</span>
+              {copiedRef ? (
+                <Check className="w-3.5 h-3.5 text-emerald-600" />
+              ) : (
+                <Copy className="w-3.5 h-3.5 text-slate-400" />
+              )}
+            </button>
+
+            <span className="text-xs font-bold uppercase tracking-wider text-brand-teal px-2.5 py-0.5 rounded-full bg-teal-50 border border-teal-200">
+              {incident.category}
+            </span>
+          </div>
+
+          <h2 className="text-xl sm:text-2xl font-black text-brand-navy tracking-tight">
+            {incident.title}
+          </h2>
+
+          <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-normal">
+            {incident.description}
+          </p>
+        </div>
+
+        {/* Quick Severity Advisory Box */}
+        <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 shrink-0 md:max-w-xs space-y-2">
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+              Emergency Priority
+            </span>
+            <StatusBadge status={incident.severity} type="severity" size="sm" />
+          </div>
+          <p className="text-[11px] text-slate-500 leading-relaxed">
+            {incident.severity === 'Critical'
+              ? 'Immediate priority dispatch allocated with active paramedic notification.'
+              : incident.severity === 'High'
+              ? 'Urgent assistance dispatched with priority road response fleet.'
+              : 'Standard priority response under active central coordination.'}
+          </p>
+        </div>
+      </div>
+
+      {/* Primary Section 1: Visual Lifecycle Stepper */}
       <Card
         title="Emergency Case Lifecycle"
-        subtitle="Finite state progression verified by Member 3 (J.K.S. Jayasundara)"
+        subtitle="Finite state progression engine verified by Member 3 (J.K.S. Jayasundara)"
         className="border border-slate-200"
       >
-        <div className="py-4">
-          <div className="hidden md:flex items-center justify-between relative">
-            {/* Connecting Progress Line */}
-            <div className="absolute top-1/2 left-6 right-6 -translate-y-1/2 h-1 bg-slate-200 z-0" />
-            <div
-              className="absolute top-1/2 left-6 -translate-y-1/2 h-1 bg-brand-teal transition-all duration-500 z-0"
-              style={{
-                width: `${Math.max(0, (currentStatusIdx / (ORDERED_STATUSES.length - 1)) * 90)}%`,
-              }}
-            />
+        <div className="py-2">
+          <IncidentLifecycleStepper currentStatus={incident.status} />
 
-            {ORDERED_STATUSES.map((step, idx) => {
-              const isPast = idx < currentStatusIdx;
-              const isCurrent = idx === currentStatusIdx;
-
-              return (
-                <div key={step} className="relative z-10 flex flex-col items-center text-center">
-                  <div
-                    className={`
-                      w-10 h-10 rounded-full flex items-center justify-center font-bold text-xs transition-all duration-300
-                      ${
-                        isCurrent
-                          ? 'bg-brand-teal text-brand-navy ring-4 ring-brand-teal/20 scale-110 shadow-lg'
-                          : isPast
-                          ? 'bg-brand-navy text-white'
-                          : 'bg-white border-2 border-slate-300 text-slate-400'
-                      }
-                    `}
-                  >
-                    {isPast ? <CheckCircle2 className="w-5 h-5 text-brand-teal" /> : idx + 1}
-                  </div>
-                  <span
-                    className={`text-xs mt-2 font-bold max-w-[90px] leading-tight ${
-                      isCurrent ? 'text-brand-navy font-extrabold' : isPast ? 'text-slate-700' : 'text-slate-400'
-                    }`}
-                  >
-                    {step}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Mobile Current Status Notice */}
-          <div className="md:hidden p-4 rounded-2xl bg-teal-50 border border-teal-200 flex items-center gap-3">
-            <div className="w-3 h-3 rounded-full bg-brand-teal animate-ping" />
-            <div>
-              <div className="text-xs font-bold text-brand-navy">Current Case Status:</div>
-              <div className="text-sm font-extrabold text-brand-teal-dark">{incident.status}</div>
-            </div>
-          </div>
-
-          {/* Quick Simulation Bar for Evaluators */}
-          <div className="mt-8 pt-6 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3 bg-slate-50 p-4 rounded-2xl">
-            <div className="text-xs text-slate-600 font-semibold">
-              <span className="font-bold text-brand-navy">State Transition Controls:</span> Advance case for testing:
+          {/* Quick Simulation Bar for University Evaluators */}
+          <div className="mt-8 pt-5 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3 bg-slate-50 p-4 rounded-2xl">
+            <div className="text-xs text-slate-600 font-semibold flex items-center gap-2">
+              <Radio className="w-3.5 h-3.5 text-brand-teal animate-pulse" />
+              <span>
+                <span className="font-bold text-brand-navy">Evaluator State Simulator:</span> Step through the finite state machine:
+              </span>
             </div>
             <div className="flex flex-wrap gap-2">
               {incident.status === 'Submitted' && (
@@ -328,7 +428,7 @@ export default function IncidentTrackingPage() {
               )}
               {incident.status === 'Assistance Dispatched' && (
                 <Button size="sm" onClick={() => handleAdvanceStatus('In Progress')} isLoading={isUpdating}>
-                  Arrived / In Progress
+                  Mark Crew On Scene / In Progress
                 </Button>
               )}
               {incident.status === 'In Progress' && (
@@ -337,8 +437,13 @@ export default function IncidentTrackingPage() {
                 </Button>
               )}
               {incident.status === 'Resolved' && (
-                <span className="text-xs font-bold text-emerald-600 flex items-center gap-1">
-                  <CheckCircle2 className="w-4 h-4" /> Case Successfully Resolved
+                <span className="text-xs font-bold text-emerald-600 flex items-center gap-1.5 py-1">
+                  <CheckCircle2 className="w-4 h-4" /> Case Successfully Resolved & Archived
+                </span>
+              )}
+              {incident.status === 'Cancelled' && (
+                <span className="text-xs font-bold text-rose-600 flex items-center gap-1.5 py-1">
+                  <XCircle className="w-4 h-4" /> Emergency Case Cancelled
                 </span>
               )}
             </div>
@@ -346,139 +451,94 @@ export default function IncidentTrackingPage() {
         </div>
       </Card>
 
-      {/* Grid: Incident Info & Map alongside Chronological Audit Timeline */}
+      {/* Main Grid: Assignment & Location alongside Chronological Audit Trail */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        {/* Left: Incident Details & Live Map */}
+        {/* Left Column (7 cols): Assignment, Location, & Media */}
         <div className="lg:col-span-7 space-y-6">
-          <Card title={incident.title} subtitle={incident.category}>
-            <p className="text-sm text-slate-600 leading-relaxed mb-4">
-              {incident.description}
-            </p>
+          {/* Relevant Assignment Information Card */}
+          <IncidentAssignmentCard
+            assignedProvider={provider}
+            estimatedArrivalTimeMinutes={incident.estimatedArrivalTimeMinutes}
+            incidentStatus={incident.status}
+          />
 
-            <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2 text-xs">
-              <div className="flex items-center gap-2 text-slate-600">
-                <MapPin className="w-4 h-4 text-brand-teal shrink-0" />
-                <span className="font-semibold text-brand-navy">{incident.location?.address}</span>
-              </div>
-              {incident.location?.landmark && (
-                <div className="text-slate-500 pl-6">
-                  Landmark: {incident.location.landmark}
-                </div>
-              )}
-            </div>
+          {/* Location & Pinned Leaflet Map */}
+          <IncidentLocationMapCard
+            location={incident.location}
+            title="Emergency GPS Coordinates"
+            height="300px"
+          />
 
-            {/* Attached Scene Photos Preview */}
-            {incident.media && incident.media.length > 0 && (
-              <div className="mt-4 pt-4 border-t border-slate-100">
-                <div className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-2 flex items-center gap-1.5">
-                  <ImageIcon className="w-3.5 h-3.5 text-brand-teal" />
-                  <span>Attached Scene Evidence ({incident.media.length})</span>
-                </div>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
-                  {incident.media.map((item, idx) => (
-                    <div
-                      key={idx}
-                      className="rounded-xl overflow-hidden border border-slate-200 bg-slate-50 shadow-2xs"
-                    >
-                      <img
-                        src={item.url}
-                        alt={item.caption || 'Scene evidence'}
-                        className="w-full h-24 object-cover hover:scale-105 transition-transform duration-200"
-                      />
-                      {item.caption && (
-                        <div className="p-1.5 text-[10px] text-slate-600 bg-white truncate">
-                          {item.caption}
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Assigned Provider Callout */}
-            {provider && (
-              <div className="mt-4 p-4 rounded-2xl bg-brand-navy text-white flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div>
-                  <div className="text-[10px] font-bold uppercase tracking-wider text-brand-teal">
-                    Assigned Response Unit
-                  </div>
-                  <h5 className="text-sm font-bold">{provider.name}</h5>
-                  <div className="text-xs text-slate-300 mt-0.5">
-                    ETA: {incident.estimatedArrivalTimeMinutes || 15} minutes
-                  </div>
-                </div>
-                {provider.phone && (
-                  <a
-                    href={`tel:${provider.phone}`}
-                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-brand-teal text-brand-navy font-bold text-xs"
+          {/* Media Attachments Gallery (if present) */}
+          {incident.media && incident.media.length > 0 && (
+            <Card title="Incident Media Attachments" icon={ImageIcon}>
+              <div className="grid grid-cols-2 gap-4">
+                {incident.media.map((item, idx) => (
+                  <div
+                    key={idx}
+                    className="group relative rounded-2xl overflow-hidden border border-slate-200 bg-slate-900 aspect-video shadow-xs"
                   >
-                    <Phone className="w-3.5 h-3.5" />
-                    <span>Call Crew ({provider.phone})</span>
-                  </a>
-                )}
+                    <img
+                      src={item.url}
+                      alt={item.caption || 'Incident Attachment'}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                    {item.caption && (
+                      <div className="absolute inset-x-0 bottom-0 p-2.5 bg-gradient-to-t from-black/80 to-transparent text-[11px] font-semibold text-white">
+                        {item.caption}
+                      </div>
+                    )}
+                  </div>
+                ))}
               </div>
-            )}
-          </Card>
-
-          {/* Incident Location Map */}
-          <div className="bg-white rounded-3xl p-4 border border-slate-200 shadow-card">
-            <div className="flex items-center justify-between px-2 pb-2 mb-2 border-b border-slate-100 text-xs font-bold text-brand-navy">
-              <span>Incident Coordinates Pinned</span>
-              <span className="font-mono text-slate-400">
-                {lat.toFixed(4)}, {lng.toFixed(4)}
-              </span>
-            </div>
-            <SafePassageMap
-              center={[lat, lng]}
-              zoom={14}
-              userLocation={{ lat, lng, address: incident.location?.address }}
-              height="300px"
-            />
-          </div>
+            </Card>
+          )}
         </div>
 
-        {/* Right: Chronological Case Logs / Audit Trail (Member 3 Spec) */}
+        {/* Right Column (5 cols): Case History / Chronological Audit Trail */}
         <div className="lg:col-span-5 space-y-6">
           <Card
-            title="Chronological Case Audit Trail"
-            subtitle="Immutable activity and state history"
+            title="Case History & Audit Trail"
+            subtitle="Immutable activity and state transition log"
             icon={FileText}
           >
-            <div className="space-y-6 relative before:absolute before:top-2 before:bottom-2 before:left-3 before:w-0.5 before:bg-slate-200">
-              {caseLogs.map((log, idx) => (
-                <div key={log._id || idx} className="relative pl-8">
-                  {/* Timeline Dot */}
-                  <div className="absolute top-1 left-1.5 w-3.5 h-3.5 rounded-full bg-brand-teal border-2 border-white ring-2 ring-brand-teal/20" />
-
-                  <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80">
-                    <div className="flex items-center justify-between gap-2 mb-1">
-                      <span className="text-xs font-bold text-brand-navy">
-                        {log.newStatus}
-                      </span>
-                      <span className="text-[10px] font-medium text-slate-400">
-                        {new Date(log.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                      </span>
-                    </div>
-                    <p className="text-xs text-slate-600 leading-relaxed mb-2">{log.notes}</p>
-                    <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                      <span>Updated By:</span>
-                      <span className="text-brand-navy capitalize">{log.updaterRole}</span>
-                    </div>
-                  </div>
+            {/* Inline Progress Update Note Form */}
+            {!isTerminal && (
+              <form onSubmit={handlePostNote} className="mb-6 space-y-2">
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={caseNote}
+                    onChange={(e) => setCaseNote(e.target.value)}
+                    placeholder="Add progress note or check-in..."
+                    className="flex-1 text-xs px-3 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-teal bg-white"
+                  />
+                  <Button type="submit" size="sm" icon={Send} isLoading={isUpdating}>
+                    Log Note
+                  </Button>
                 </div>
-              ))}
-            </div>
+                <div className="text-[10px] text-slate-400 pl-1">
+                  Updates are appended to the case log visible to dispatchers.
+                </div>
+              </form>
+            )}
+
+            {/* Vertical Chronological CaseLog Timeline */}
+            <CaseAuditTimeline logs={caseLogs} />
           </Card>
         </div>
       </div>
 
+      {/* Emergency Cancellation Confirm Dialog */}
       <ConfirmDialog
         isOpen={cancelDialogOpen}
         onClose={() => setCancelDialogOpen(false)}
-        onConfirm={handleCancelIncident}
+        onConfirm={async () => {
+          setCancelDialogOpen(false);
+          await handleAdvanceStatus('Cancelled');
+        }}
         title="Cancel Emergency Dispatch?"
-        message="Are you certain you wish to cancel this emergency request? Responding crews will stand down."
+        message="Are you certain you wish to cancel this emergency request? Responding crews will stand down and the case will transition to Cancelled."
         confirmText="Yes, Cancel Emergency"
       />
     </div>

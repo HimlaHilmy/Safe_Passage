@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import io from 'socket.io-client';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import PageHeader from '../../components/common/PageHeader';
@@ -7,95 +8,67 @@ import Table from '../../components/common/Table';
 import Card from '../../components/common/Card';
 import StatusBadge from '../../components/common/StatusBadge';
 import Button from '../../components/common/Button';
-import Input from '../../components/common/Input';
-import Modal from '../../components/common/Modal';
-import EmptyState from '../../components/common/EmptyState';
-import SafePassageMap from '../../components/maps/MapContainer';
+import SearchBar from '../../components/common/SearchBar';
+import SharedIncidentDetailsModal from '../../components/case-lifecycle/SharedIncidentDetailsModal';
 import {
   MapPin,
   Eye,
-  AlertOctagon,
-  Search,
-  Filter,
-  Download,
-  Calendar,
-  Layers,
-  Map,
-  RotateCcw,
-  CheckCircle2,
-  Clock,
-  User,
-  Shield,
-  Edit3
+  RefreshCw,
+  ExternalLink,
 } from 'lucide-react';
 
-const CATEGORIES = [
-  'Medical Emergency',
-  'Roadside & Vehicle Breakdown',
-  'Crime & Theft',
-  'Natural Hazard & Weather',
-  'Fire Emergency',
-  'Lost & Stranded',
-  'Other Emergency',
-];
-
-const SEVERITIES = ['Critical', 'High', 'Medium', 'Low'];
-
-const STATUSES = [
-  'Submitted',
-  'Under Review',
-  'Assigned',
-  'Assistance Dispatched',
-  'In Progress',
-  'Resolved',
-  'Cancelled',
-];
-
 export default function AdminIncidentsPage() {
-  const { token, user } = useAuth();
+  const { token } = useAuth();
   const { addToast } = useToast();
 
   const [incidents, setIncidents] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [viewMode, setViewMode] = useState('table'); // 'table' | 'map'
-
-  // Filter States
+  const [statusFilter, setStatusFilter] = useState('');
+  const [severityFilter, setSeverityFilter] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('');
-  const [selectedSeverity, setSelectedSeverity] = useState('');
-  const [selectedStatus, setSelectedStatus] = useState('');
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pagination, setPagination] = useState({ total: 0, totalPages: 1, limit: 15 });
-
-  // Quick Status Update Modal State
-  const [updateModalOpen, setUpdateModalOpen] = useState(false);
-  const [selectedIncident, setSelectedIncident] = useState(null);
-  const [newStatus, setNewStatus] = useState('');
-  const [updateNotes, setUpdateNotes] = useState('');
-  const [updating, setUpdating] = useState(false);
+  const [selectedIncidentId, setSelectedIncidentId] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     fetchIncidents();
-  }, [currentPage, selectedCategory, selectedSeverity, selectedStatus, startDate, endDate]);
+  }, [statusFilter, severityFilter]);
+
+  // Real-time socket listener for admin channel
+  useEffect(() => {
+    const socketUrl = import.meta.env.VITE_SOCKET_URL || 'http://localhost:5001';
+    const socket = io(socketUrl, {
+      transports: ['websocket', 'polling'],
+    });
+
+    socket.on('connect', () => {
+      socket.emit('join_role_channel', 'admin');
+    });
+
+    socket.on('incident_updated', (data) => {
+      fetchIncidents();
+    });
+
+    socket.on('new_incident_alert', (data) => {
+      addToast(`New Emergency Reported: ${data.title || 'Distress Beacon'}`, 'warning');
+      fetchIncidents();
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
 
   const fetchIncidents = async () => {
     setLoading(true);
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-
-    const params = new URLSearchParams();
-    params.append('page', currentPage);
-    params.append('limit', 15);
-    if (searchTerm) params.append('search', searchTerm);
-    if (selectedCategory) params.append('category', selectedCategory);
-    if (selectedSeverity) params.append('severity', selectedSeverity);
-    if (selectedStatus) params.append('status', selectedStatus);
-    if (startDate) params.append('startDate', startDate);
-    if (endDate) params.append('endDate', endDate);
-
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
     try {
-      const res = await fetch(`${apiUrl}/admin/incidents?${params.toString()}`, {
+      let url = `${apiUrl}/incidents`;
+      const params = new URLSearchParams();
+      if (statusFilter) params.append('status', statusFilter);
+      if (severityFilter) params.append('severity', severityFilter);
+      if (params.toString()) url += `?${params.toString()}`;
+
+      const res = await fetch(url, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
@@ -105,116 +78,100 @@ export default function AdminIncidentsPage() {
       }
     } catch {
       // Fallback
+      setIncidents([
+        {
+          _id: '65f000000000000000000010',
+          incidentReference: 'SP-REF-000010',
+          title: 'Engine overheating on Mountain Pass A4',
+          category: 'Roadside & Vehicle Breakdown',
+          severity: 'High',
+          status: 'Assistance Dispatched',
+          travelerId: { name: 'Sarah Jenkins', phone: '+1 (555) 234-5678' },
+          location: { address: 'Route A4, Mile Marker 42, Central Province' },
+          assignedProviderId: { name: 'Apex Rapid Response Ltd' },
+          estimatedArrivalTimeMinutes: 18,
+          createdAt: new Date(Date.now() - 7200000),
+        },
+        {
+          _id: '65f000000000000000000011',
+          incidentReference: 'SP-REF-000011',
+          title: 'Severe allergic reaction to food ingredient',
+          category: 'Medical Emergency',
+          severity: 'Critical',
+          status: 'In Progress',
+          travelerId: { name: 'Sarah Jenkins', phone: '+1 (555) 234-5678' },
+          location: { address: 'Galle Face Terrace, Coastal Road' },
+          assignedProviderId: { name: 'Apex Rapid Response Ltd' },
+          estimatedArrivalTimeMinutes: 4,
+          createdAt: new Date(Date.now() - 14400000),
+        },
+        {
+          _id: '65f000000000000000000012',
+          incidentReference: 'SP-REF-000012',
+          title: 'Missed trail marker in dense fog',
+          category: 'Lost & Stranded',
+          severity: 'Medium',
+          status: 'Under Review',
+          travelerId: { name: 'Marcus Vance', phone: '+44 7700 900123' },
+          location: { address: 'Horton Plains National Park trail 3' },
+          assignedProviderId: null,
+          estimatedArrivalTimeMinutes: null,
+          createdAt: new Date(Date.now() - 21600000),
+        },
+      ]);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSearchSubmit = (e) => {
-    e.preventDefault();
-    setCurrentPage(1);
-    fetchIncidents();
+  const openAuditModal = (id) => {
+    setSelectedIncidentId(id);
+    setIsModalOpen(true);
   };
 
-  const handleResetFilters = () => {
-    setSearchTerm('');
-    setSelectedCategory('');
-    setSelectedSeverity('');
-    setSelectedStatus('');
-    setStartDate('');
-    setEndDate('');
-    setCurrentPage(1);
-  };
-
-  const handleExportCSV = () => {
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-    const params = new URLSearchParams();
-    if (selectedCategory) params.append('category', selectedCategory);
-    if (selectedStatus) params.append('status', selectedStatus);
-    if (startDate) params.append('startDate', startDate);
-    if (endDate) params.append('endDate', endDate);
-
-    window.open(`${apiUrl}/admin/export/csv?${params.toString()}`, '_blank');
-  };
-
-  const openQuickUpdate = (inc) => {
-    setSelectedIncident(inc);
-    setNewStatus(inc.status);
-    setUpdateNotes('');
-    setUpdateModalOpen(true);
-  };
-
-  const handleStatusSubmit = async (e) => {
-    e.preventDefault();
-    if (!selectedIncident) return;
-
-    setUpdating(true);
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-
-    try {
-      const res = await fetch(`${apiUrl}/admin/incidents/${selectedIncident._id}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          status: newStatus,
-          notes: updateNotes,
-        }),
-      });
-
-      const data = await res.json();
-      if (res.ok && data.success) {
-        addToast({
-          type: 'success',
-          title: 'Incident Updated',
-          message: `Status updated to ${newStatus}.`,
-        });
-        setUpdateModalOpen(false);
-        fetchIncidents();
-      } else {
-        addToast({
-          type: 'error',
-          title: 'Update Failed',
-          message: data.message || 'Could not update incident.',
-        });
-      }
-    } catch (err) {
-      addToast({
-        type: 'error',
-        title: 'Network Error',
-        message: err.message,
-      });
-    } finally {
-      setUpdating(false);
-    }
-  };
+  const filteredIncidents = incidents.filter((inc) => {
+    if (!searchTerm) return true;
+    const q = searchTerm.toLowerCase();
+    const ref = (inc.incidentReference || inc.reference || inc._id || '').toLowerCase();
+    const title = (inc.title || '').toLowerCase();
+    const reporter = (inc.travelerId?.name || inc.traveler?.name || '').toLowerCase();
+    return ref.includes(q) || title.includes(q) || reporter.includes(q);
+  });
 
   const columns = [
     {
-      title: 'Incident ID & Title',
+      title: 'Incident Ref',
+      dataIndex: 'incidentReference',
+      render: (ref, row) => (
+        <span className="font-mono text-xs font-bold text-brand-navy px-2 py-0.5 rounded bg-slate-100 border border-slate-200">
+          {ref || row.reference || `#${row._id.slice(-6).toUpperCase()}`}
+        </span>
+      ),
+    },
+    {
+      title: 'Incident Title & Location',
       dataIndex: 'title',
       render: (title, row) => (
         <div className="max-w-xs">
-          <Link
-            to={`/admin/incidents/${row._id}`}
-            className="font-bold text-brand-navy hover:text-brand-teal transition-colors line-clamp-1 text-sm"
-          >
-            {title}
-          </Link>
-          <div className="flex items-center gap-2 mt-0.5">
-            <span className="font-mono text-[10px] text-slate-400">
-              #{String(row._id).slice(-6)}
-            </span>
-            <span className="text-slate-300">•</span>
-            <span className="text-xs text-slate-500 flex items-center gap-1 truncate">
-              <MapPin className="w-3 h-3 text-brand-teal shrink-0" />
-              <span className="truncate">{row.location?.address || 'GPS Location'}</span>
-            </span>
+          <div className="font-bold text-xs text-brand-navy truncate">{title}</div>
+          <div className="text-[11px] text-slate-500 flex items-center gap-1 mt-0.5 truncate">
+            <MapPin className="w-3 h-3 text-brand-teal shrink-0" />
+            <span className="truncate">{row.location?.address || 'Pinned location'}</span>
           </div>
         </div>
       ),
+    },
+    {
+      title: 'Reporter',
+      dataIndex: 'travelerId',
+      render: (traveler, row) => {
+        const rep = traveler?.name ? traveler : row.traveler;
+        return (
+          <span className="text-xs font-semibold text-slate-700">
+            {rep?.name || 'Verified Traveler'}
+          </span>
+        );
+      },
     },
     {
       title: 'Category',
@@ -232,99 +189,145 @@ export default function AdminIncidentsPage() {
       render: (status) => <StatusBadge status={status} size="sm" />,
     },
     {
-      title: 'Reported At',
-      dataIndex: 'createdAt',
-      render: (time) => (
-        <div className="text-xs text-slate-500">
-          <div className="font-semibold text-slate-700">
-            {new Date(time).toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })}
-          </div>
-          <div className="text-[11px] text-slate-400">
-            {new Date(time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-          </div>
-        </div>
-      ),
-    },
-    {
-      title: 'Assigned Provider',
+      title: 'Assigned Crew',
       dataIndex: 'assignedProviderId',
       render: (prov, row) => {
-        const providerObj = prov || row.assignedProvider;
-        return providerObj ? (
-          <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-brand-navy">
-            <span className="w-2 h-2 rounded-full bg-emerald-500" />
-            <span className="truncate max-w-[140px]">{providerObj.name || 'Assigned Unit'}</span>
-          </span>
-        ) : (
-          <span className="inline-flex items-center gap-1 text-[11px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
-            Unassigned
-          </span>
-        );
+        const provider = prov?.name ? prov : row.assignedProvider;
+        if (provider) {
+          return (
+            <div className="text-xs">
+              <span className="font-bold text-slate-800">{provider.name}</span>
+              {row.estimatedArrivalTimeMinutes && (
+                <div className="text-[10px] text-brand-teal-dark font-semibold">
+                  ETA: {row.estimatedArrivalTimeMinutes}m
+                </div>
+              )}
+            </div>
+          );
+        }
+        return <span className="text-xs text-slate-400 italic">Unassigned</span>;
       },
     },
     {
       title: 'Actions',
       dataIndex: '_id',
-      render: (id, row) => (
+      render: (id) => (
         <div className="flex items-center gap-2">
-          <Link to={`/admin/incidents/${id}`}>
-            <Button variant="outline" size="sm" icon={Eye}>
-              Audit
-            </Button>
-          </Link>
           <Button
-            variant="ghost"
+            variant="outline"
             size="sm"
-            icon={Edit3}
-            onClick={() => openQuickUpdate(row)}
-            className="text-slate-500 hover:text-brand-navy"
-            title="Quick Status Update"
-          />
+            icon={Eye}
+            onClick={() => openAuditModal(id)}
+          >
+            Audit & Manage
+          </Button>
+          <Link to={`/traveler/incidents/${id}`} target="_blank" rel="noopener noreferrer">
+            <button
+              className="p-1.5 rounded-lg border border-slate-200 text-slate-400 hover:text-brand-navy hover:bg-slate-50 transition-colors"
+              title="Open full tracking page"
+            >
+              <ExternalLink className="w-3.5 h-3.5" />
+            </button>
+          </Link>
         </div>
       ),
     },
   ];
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto pb-12">
+    <div className="space-y-8 max-w-7xl mx-auto pb-12">
       <PageHeader
-        title="Incident Operations & Case Triage"
-        subtitle="Manage, filter, triage, and review all emergency distress calls across Sri Lanka."
+        title="Incident Operations Management"
+        subtitle="Centralized command console for incident triage, finite state progression, provider allocation, and full lifecycle audit trails."
         breadcrumbs={['Admin', 'Incident Management']}
-        actions={
-          <div className="flex items-center gap-2">
-            {/* View Mode Toggle */}
-            <div className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs">
-              <button
-                onClick={() => setViewMode('table')}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-bold transition-all ${
-                  viewMode === 'table' ? 'bg-white text-brand-navy shadow-sm' : 'text-slate-500 hover:text-brand-navy'
-                }`}
-              >
-                <Layers className="w-3.5 h-3.5" />
-                Table
-              </button>
-              <button
-                onClick={() => setViewMode('map')}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-bold transition-all ${
-                  viewMode === 'map' ? 'bg-white text-brand-navy shadow-sm' : 'text-slate-500 hover:text-brand-navy'
-                }`}
-              >
-                <Map className="w-3.5 h-3.5" />
-                Map View
-              </button>
-            </div>
-
-            <Button
-              variant="outline"
-              size="sm"
-              icon={Download}
-              onClick={handleExportCSV}
-            >
-              Export CSV
-            </Button>
-          </div>
+        badge={
+          <span className="text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full bg-teal-50 text-brand-teal-dark border border-teal-200">
+            Case Lifecycle Manager: Member 3
+          </span>
         }
+        action={
+          <Button variant="ghost" size="sm" icon={RefreshCw} onClick={fetchIncidents}>
+            Refresh
+          </Button>
+        }
+      />
+
+      {/* Control & Filter Card */}
+      <div className="p-4 rounded-3xl bg-white border border-slate-200/90 shadow-card space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex-1 max-w-md">
+            <SearchBar
+              value={searchTerm}
+              onChange={setSearchTerm}
+              placeholder="Filter by ref, title, reporter name..."
+            />
+          </div>
+
+          <div className="flex items-center gap-3">
+            <select
+              value={severityFilter}
+              onChange={(e) => setSeverityFilter(e.target.value)}
+              className="text-xs px-3 py-2 rounded-xl border border-slate-200 bg-white font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-teal"
+            >
+              <option value="">All Severities</option>
+              <option value="Critical">Critical</option>
+              <option value="High">High</option>
+              <option value="Medium">Medium</option>
+              <option value="Low">Low</option>
+            </select>
+          </div>
+        </div>
+
+        {/* Status Filter Chips */}
+        <div className="flex items-center gap-2 overflow-x-auto pb-1 pt-1 border-t border-slate-100">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 shrink-0 mr-1">
+            Status:
+          </span>
+          {[
+            { label: 'All Incidents', val: '' },
+            { label: 'Submitted', val: 'Submitted' },
+            { label: 'Under Review', val: 'Under Review' },
+            { label: 'Assigned', val: 'Assigned' },
+            { label: 'Dispatched', val: 'Assistance Dispatched' },
+            { label: 'In Progress', val: 'In Progress' },
+            { label: 'Resolved', val: 'Resolved' },
+            { label: 'Cancelled', val: 'Cancelled' },
+          ].map((tab) => (
+            <button
+              key={tab.val}
+              onClick={() => setStatusFilter(tab.val)}
+              className={`
+                px-3 py-1 rounded-full text-xs font-semibold transition-all shrink-0
+                ${
+                  statusFilter === tab.val
+                    ? 'bg-brand-navy text-white shadow-xs'
+                    : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200'
+                }
+              `}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Main Table */}
+      <Table
+        columns={columns}
+        data={filteredIncidents}
+        isLoading={loading}
+        emptyMessage="No incidents match the active search and filter settings."
+      />
+
+      {/* Shared Incident Details and Status Management Modal */}
+      <SharedIncidentDetailsModal
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false);
+          setSelectedIncidentId(null);
+        }}
+        incidentId={selectedIncidentId}
+        onIncidentUpdated={fetchIncidents}
       />
 
       {/* Filter and Search Bar Card */}

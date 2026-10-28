@@ -41,6 +41,11 @@ function generateIncidentReference() {
  */
 const incidentSchema = new mongoose.Schema(
   {
+    incidentReference: {
+      type: String,
+      trim: true,
+      index: true,
+    },
     travelerId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
@@ -164,13 +169,20 @@ const incidentSchema = new mongoose.Schema(
   }
 );
 
-// Pre-validate hook to generate server incident reference
-incidentSchema.pre('validate', function (next) {
+// Virtual reference identifier
+incidentSchema.virtual('reference').get(function () {
+  if (this.incidentReference) return this.incidentReference;
+  const idStr = this._id ? this._id.toString() : '';
+  const suffix = idStr.length >= 6 ? idStr.slice(-6).toUpperCase() : 'NEW';
+  return `SP-REF-${suffix}`;
+});
+
+// Auto-generate reference code before saving if not present
+incidentSchema.pre('save', function (next) {
   if (!this.incidentReference) {
-    this.incidentReference = generateIncidentReference();
-  }
-  if (!this.referenceNumber) {
-    this.referenceNumber = this.incidentReference;
+    const idStr = this._id ? this._id.toString() : '';
+    const suffix = idStr.length >= 6 ? idStr.slice(-6).toUpperCase() : Math.floor(1000 + Math.random() * 9000);
+    this.incidentReference = `SP-REF-${suffix}`;
   }
   next();
 });
