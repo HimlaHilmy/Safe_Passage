@@ -82,3 +82,4 @@ auditLogSchema.index({ targetType: 1 });
 auditLogSchema.index({ performedBy: 1 });
 
 module.exports = mongoose.model('AuditLog', auditLogSchema);
+
