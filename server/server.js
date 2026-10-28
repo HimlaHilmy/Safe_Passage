@@ -26,6 +26,16 @@ app.set('io', io);
 const startServer = async () => {
   await connectDB();
 
+  server.on('error', (err) => {
+    if (err.code === 'EADDRINUSE') {
+      console.warn(`[Server] Port ${PORT} is in use. Trying port ${Number(PORT) + 1}...`);
+      PORT = Number(PORT) + 1;
+      server.listen(PORT);
+    } else {
+      console.error('[Server Error]', err);
+    }
+  });
+
   server.listen(PORT, () => {
     console.log(`=======================================================`);
     console.log(`  SAFE PASSAGE API SERVER RUNNING                      `);
