@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavLink, Link } from 'react-router-dom';
+import { NavLink, Link, useLocation } from 'react-router-dom';
 import BrandLogo from '../common/BrandLogo';
 import { useAuth } from '../../context/AuthContext';
 import {
@@ -24,13 +24,25 @@ import {
 
 export default function DashboardSidebar({ mobileOpen = false, onCloseMobile }) {
   const { user, logout } = useAuth();
+  const location = useLocation();
   const role = user?.role || 'traveler';
 
   // Navigation Links tailored to each specific Role
   const roleNavItems = {
     traveler: [
-      { label: 'Overview', path: '/traveler', icon: LayoutDashboard, end: true },
-      { label: 'Report Emergency', path: '/traveler/report', icon: AlertOctagon, highlight: true },
+      {
+        label: 'Dashboard Overview',
+        path: '/traveler/dashboard',
+        aliases: ['/traveler', '/traveler/dashboard'],
+        icon: LayoutDashboard,
+      },
+      {
+        label: 'Report Emergency',
+        path: '/traveler/report-emergency',
+        aliases: ['/traveler/report', '/traveler/report-emergency'],
+        icon: AlertOctagon,
+        highlight: true,
+      },
       { label: 'Find Services', path: '/traveler/services', icon: MapPin },
       { label: 'My Incidents', path: '/traveler/incidents', icon: Clock },
       { label: 'Roadside Assistance', path: '/traveler/roadside', icon: Wrench },
@@ -107,16 +119,20 @@ export default function DashboardSidebar({ mobileOpen = false, onCloseMobile }) 
           <nav className="p-4 space-y-1.5 overflow-y-auto max-h-[calc(100vh-250px)]">
             {navItems.map((item) => {
               const Icon = item.icon;
+              const isItemActive =
+                item.aliases?.includes(location.pathname) ||
+                location.pathname === item.path;
+
               return (
                 <NavLink
                   key={item.path}
                   to={item.path}
                   end={item.end}
                   onClick={onCloseMobile}
-                  className={({ isActive }) => `
+                  className={`
                     flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all
                     ${
-                      isActive
+                      isItemActive
                         ? 'bg-brand-teal text-brand-navy shadow-md font-bold'
                         : item.highlight
                         ? 'bg-emergency-red/20 text-red-300 hover:bg-emergency-red/30'

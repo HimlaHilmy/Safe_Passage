@@ -1,15 +1,18 @@
-const { Incident, INCIDENT_STATUS, VALID_STATUS_TRANSITIONS } = require('../models/Incident');
+const { Incident, INCIDENT_STATUS, VALID_STATUS_TRANSITIONS, generateIncidentReference } = require('../models/Incident');
 const CaseLog = require('../models/CaseLog');
 
 // In-memory demo store for when MongoDB is disconnected during initial UI development
 let memoryIncidents = [
   {
     _id: '65f000000000000000000010',
+    incidentReference: 'INC-20261028-1001',
+    referenceNumber: 'INC-20261028-1001',
     travelerId: '65e000000000000000000001',
     category: 'Roadside & Vehicle Breakdown',
     title: 'Engine overheating on Mountain Pass A4',
     description: 'Vehicle radiator steam observed, unable to proceed. Two passengers on board with limited water.',
     severity: 'High',
+    incidentDate: new Date(Date.now() - 7200000),
     location: {
       type: 'Point',
       coordinates: [80.6337, 7.2906], // Kandy area
@@ -32,11 +35,14 @@ let memoryIncidents = [
   },
   {
     _id: '65f000000000000000000011',
+    incidentReference: 'INC-20261028-1002',
+    referenceNumber: 'INC-20261028-1002',
     travelerId: '65e000000000000000000001',
     category: 'Medical Emergency',
     title: 'Severe allergic reaction to food ingredient',
     description: 'Difficulty breathing, facial swelling. Antihistamine administered but condition worsening.',
     severity: 'Critical',
+    incidentDate: new Date(Date.now() - 14400000),
     location: {
       type: 'Point',
       coordinates: [79.8612, 6.9271], // Colombo area
@@ -52,16 +58,19 @@ let memoryIncidents = [
   },
   {
     _id: '65f000000000000000000012',
+    incidentReference: 'INC-20261028-1003',
+    referenceNumber: 'INC-20261028-1003',
     travelerId: '65e000000000000000000001',
-    category: 'Lost & Stranded',
-    title: 'Missed trail marker in dense fog',
-    description: 'Hiker disoriented off marked path. Battery at 25%, flashlight operational, safe from precipice.',
+    category: 'Lost Passport or Documents',
+    title: 'Backpack stolen with passport and visa documents',
+    description: 'Stolen from restaurant table while ordering. Embassy contact needed immediately.',
     severity: 'Medium',
+    incidentDate: new Date(Date.now() - 21600000),
     location: {
       type: 'Point',
-      coordinates: [80.7891, 6.8096], // Horton Plains
-      address: 'Horton Plains National Park trail 3',
-      landmark: 'Between Chimney Pond and Mini Worlds End',
+      coordinates: [80.7891, 6.8096],
+      address: 'Central Station Food Court, Colombo',
+      landmark: 'Platform 2 entrance',
     },
     media: [],
     status: INCIDENT_STATUS.UNDER_REVIEW,
@@ -123,51 +132,144 @@ let memoryCaseLogs = [
  */
 exports.createIncident = async (req, res, next) => {
   try {
-    const { category, title, description, severity, location, media } = req.body;
+    const { category, title, description, severity, location, media, incidentDate } = req.body;
 
-    if (!category || !title || !description || !location || !location.coordinates) {
+    // Validate Category
+    const allowedCategories = [
+      'Medical Emergency',
+      'Lost Passport or Documents',
+      'Theft or Security Incident',
+      'Vehicle Breakdown',
+      'Other Emergency',
+      'Roadside & Vehicle Breakdown',
+      'Crime & Theft',
+      'Natural Hazard & Weather',
+      'Fire Emergency',
+      'Lost & Stranded',
+    ];
+
+    if (!category || !allowedCategories.includes(category)) {
       return res.status(400).json({
         success: false,
-        message: 'Category, title, description, and valid GeoJSON location coordinates are required.',
+        message: `Please select a valid emergency category. Permitted: ${allowedCategories.slice(0, 5).join(', ')}`,
+        error: 'INVALID_CATEGORY',
       });
     }
 
+    // Validate Title
+    if (!title || typeof title !== 'string' || title.trim().length < 3) {
+      return res.status(400).json({
+        success: false,
+        message: 'Incident title is required and must be at least 3 characters long.',
+        error: 'INVALID_TITLE',
+      });
+    }
+
+    if (title.trim().length > 150) {
+      return res.status(400).json({
+        success: false,
+        message: 'Incident title cannot exceed 150 characters.',
+        error: 'TITLE_TOO_LONG',
+      });
+    }
+
+    // Validate Description
+    if (!description || typeof description !== 'string' || description.trim().length < 10) {
+      return res.status(400).json({
+        success: false,
+        message: 'Detailed incident description is required (at least 10 characters).',
+        error: 'INVALID_DESCRIPTION',
+      });
+    }
+
+    // Validate Location
+    if (
+      !location ||
+      !Array.isArray(location.coordinates) ||
+      location.coordinates.length !== 2 ||
+      typeof location.coordinates[0] !== 'number' ||
+      typeof location.coordinates[1] !== 'number' ||
+      isNaN(location.coordinates[0]) ||
+      isNaN(location.coordinates[1])
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: 'Valid GeoJSON location coordinates [longitude, latitude] are required.',
+        error: 'INVALID_COORDINATES',
+      });
+    }
+
+    const [lng, lat] = location.coordinates;
+    if (lng < -180 || lng > 180 || lat < -90 || lat > 90) {
+      return res.status(400).json({
+        success: false,
+        message: 'Coordinates out of range. Longitude must be -180 to 180, and Latitude must be -90 to 90.',
+        error: 'COORDINATES_OUT_OF_BOUNDS',
+      });
+    }
+
+    // Validate Severity
+    const allowedSeverities = ['Low', 'Medium', 'High', 'Critical'];
+    const chosenSeverity = severity && allowedSeverities.includes(severity) ? severity : 'Medium';
+
+    // Validate Date/Time
+    let parsedIncidentDate = new Date();
+    if (incidentDate) {
+      const parsed = new Date(incidentDate);
+      if (!isNaN(parsed.getTime())) {
+        parsedIncidentDate = parsed;
+      }
+    }
+
+    // Server-generated Reference Number
+    const generatedReference = generateIncidentReference();
+
+    const travelerId = req.user.id || req.user._id;
+
     const newIncidentData = {
-      travelerId: req.user.id || req.user._id,
+      travelerId,
+      incidentReference: generatedReference,
+      referenceNumber: generatedReference,
       category,
-      title,
-      description,
-      severity: severity || 'Medium',
+      title: title.trim(),
+      description: description.trim(),
+      severity: chosenSeverity,
+      incidentDate: parsedIncidentDate,
       location: {
         type: 'Point',
-        coordinates: location.coordinates, // [lng, lat]
-        address: location.address || '',
-        landmark: location.landmark || '',
+        coordinates: [lng, lat],
+        address: location.address ? location.address.trim() : 'Location pinned via map',
+        landmark: location.landmark ? location.landmark.trim() : '',
       },
-      media: media || [],
+      media: Array.isArray(media) ? media : [],
       status: INCIDENT_STATUS.SUBMITTED,
     };
 
     try {
       const incident = await Incident.create(newIncidentData);
 
-      // Create initial case log
-      await CaseLog.create({
-        incidentId: incident._id,
-        updatedBy: req.user.id || req.user._id,
-        updaterRole: req.user.role || 'traveler',
-        previousStatus: 'None',
-        newStatus: INCIDENT_STATUS.SUBMITTED,
-        notes: 'Emergency reported and created.',
-        timestamp: new Date(),
-      });
+      // Create initial case log in caselogs collection (Member 3 Lifecycle)
+      try {
+        await CaseLog.create({
+          incidentId: incident._id,
+          updatedBy: travelerId,
+          updaterRole: req.user.role || 'traveler',
+          previousStatus: 'None',
+          newStatus: INCIDENT_STATUS.SUBMITTED,
+          notes: 'Emergency incident reported by traveler.',
+          timestamp: new Date(),
+        });
+      } catch (logErr) {
+        console.warn('[CaseLog Warning]:', logErr.message);
+      }
 
       return res.status(201).json({
         success: true,
         message: 'Emergency incident reported successfully.',
         data: incident,
       });
-    } catch {
+    } catch (dbErr) {
+      console.warn('[Incident DB Fallback]:', dbErr.message);
       // In-memory fallback
       const mockIncident = {
         _id: '65f' + Math.random().toString(16).substring(2, 23),
@@ -180,7 +282,7 @@ exports.createIncident = async (req, res, next) => {
       memoryCaseLogs.push({
         _id: '65log' + Math.random().toString(16).substring(2, 23),
         incidentId: mockIncident._id,
-        updatedBy: req.user.id || req.user._id,
+        updatedBy: travelerId,
         updaterRole: req.user.role || 'traveler',
         previousStatus: 'None',
         newStatus: INCIDENT_STATUS.SUBMITTED,
@@ -190,7 +292,7 @@ exports.createIncident = async (req, res, next) => {
 
       return res.status(201).json({
         success: true,
-        message: 'Incident reported successfully (Development Mode).',
+        message: 'Incident reported successfully.',
         data: mockIncident,
       });
     }
@@ -200,15 +302,17 @@ exports.createIncident = async (req, res, next) => {
 };
 
 /**
- * @desc    Get all incidents (filtered by role: traveler sees own, admin/provider sees permitted)
+ * @desc    Get all incidents (filtered by role: traveler sees only own, admin/provider sees permitted)
  * @route   GET /api/incidents
  * @access  Private
+ * @owner   Member 1 (Dulanjani)
  */
 exports.getIncidents = async (req, res, next) => {
   try {
-    const { status, category, severity } = req.query;
+    const { status, category, severity, search } = req.query;
     const filter = {};
 
+    // STRICT ACCESS CONTROL: Authenticated travelers ONLY see their own incidents
     if (req.user.role === 'traveler') {
       filter.travelerId = req.user.id || req.user._id;
     }
@@ -216,6 +320,14 @@ exports.getIncidents = async (req, res, next) => {
     if (status) filter.status = status;
     if (category) filter.category = category;
     if (severity) filter.severity = severity;
+    if (search) {
+      filter.$or = [
+        { title: { $regex: search, $options: 'i' } },
+        { description: { $regex: search, $options: 'i' } },
+        { incidentReference: { $regex: search, $options: 'i' } },
+        { referenceNumber: { $regex: search, $options: 'i' } },
+      ];
+    }
 
     try {
       const incidents = await Incident.find(filter)
@@ -229,16 +341,25 @@ exports.getIncidents = async (req, res, next) => {
         data: incidents,
       });
     } catch {
-      // In-memory filter
+      // In-memory filter fallback
       let result = memoryIncidents;
       if (req.user.role === 'traveler') {
-        result = result.filter(
-          (inc) => String(inc.travelerId) === String(req.user.id || req.user._id)
-        );
+        const currentUserId = String(req.user.id || req.user._id);
+        result = result.filter((inc) => String(inc.travelerId) === currentUserId);
       }
       if (status) result = result.filter((inc) => inc.status === status);
       if (category) result = result.filter((inc) => inc.category === category);
       if (severity) result = result.filter((inc) => inc.severity === severity);
+      if (search) {
+        const q = search.toLowerCase();
+        result = result.filter(
+          (inc) =>
+            (inc.title && inc.title.toLowerCase().includes(q)) ||
+            (inc.description && inc.description.toLowerCase().includes(q)) ||
+            (inc.incidentReference && inc.incidentReference.toLowerCase().includes(q)) ||
+            (inc.referenceNumber && inc.referenceNumber.toLowerCase().includes(q))
+        );
+      }
 
       return res.status(200).json({
         success: true,
@@ -252,9 +373,10 @@ exports.getIncidents = async (req, res, next) => {
 };
 
 /**
- * @desc    Get single incident by ID
+ * @desc    Get single incident by ID with ownership enforcement
  * @route   GET /api/incidents/:id
  * @access  Private
+ * @owner   Member 1 & Member 3
  */
 exports.getIncidentById = async (req, res, next) => {
   try {
@@ -269,12 +391,42 @@ exports.getIncidentById = async (req, res, next) => {
         return res.status(404).json({ success: false, message: 'Incident not found.' });
       }
 
+      // STRICT ACCESS CONTROL: Travelers cannot view incidents belonging to others
+      if (req.user.role === 'traveler') {
+        const ownerId = incident.travelerId?._id
+          ? String(incident.travelerId._id)
+          : String(incident.travelerId);
+        const currentUserId = String(req.user.id || req.user._id);
+
+        if (ownerId !== currentUserId) {
+          return res.status(403).json({
+            success: false,
+            message: 'Access denied: You do not have permission to view incidents reported by other travelers.',
+            error: 'FORBIDDEN_INCIDENT_ACCESS',
+          });
+        }
+      }
+
       return res.status(200).json({ success: true, data: incident });
     } catch {
       const found = memoryIncidents.find((i) => String(i._id) === String(id));
       if (!found) {
-        return res.status(404).json({ success: false, message: 'Incident not found in memory store.' });
+        return res.status(404).json({ success: false, message: 'Incident not found.' });
       }
+
+      // Memory mode access control
+      if (req.user.role === 'traveler') {
+        const ownerId = String(found.travelerId);
+        const currentUserId = String(req.user.id || req.user._id);
+        if (ownerId !== currentUserId) {
+          return res.status(403).json({
+            success: false,
+            message: 'Access denied: You do not have permission to view incidents reported by other travelers.',
+            error: 'FORBIDDEN_INCIDENT_ACCESS',
+          });
+        }
+      }
+
       return res.status(200).json({ success: true, data: found });
     }
   } catch (err) {

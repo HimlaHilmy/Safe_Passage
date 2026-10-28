@@ -25,6 +25,16 @@ const VALID_STATUS_TRANSITIONS = {
 };
 
 /**
+ * Helper: Generate unique server incident reference
+ * Format: INC-YYYYMMDD-XXXX (e.g. INC-20261028-4821)
+ */
+function generateIncidentReference() {
+  const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+  const randomSuffix = Math.floor(1000 + Math.random() * 9000);
+  return `INC-${dateStr}-${randomSuffix}`;
+}
+
+/**
  * Incident Model
  * Primary Owner: Member 1 (K.H.S. Dulanjani)
  * Co-owner for Status Transitions: Member 3 (J.K.S. Jayasundara)
@@ -36,17 +46,30 @@ const incidentSchema = new mongoose.Schema(
       ref: 'User',
       required: [true, 'Traveler ID is required'],
     },
+    incidentReference: {
+      type: String,
+      unique: true,
+      sparse: true,
+      trim: true,
+    },
+    referenceNumber: {
+      type: String,
+      trim: true,
+    },
     category: {
       type: String,
       required: [true, 'Emergency category is required'],
       enum: [
         'Medical Emergency',
+        'Lost Passport or Documents',
+        'Theft or Security Incident',
+        'Vehicle Breakdown',
+        'Other Emergency',
         'Roadside & Vehicle Breakdown',
         'Crime & Theft',
         'Natural Hazard & Weather',
         'Fire Emergency',
         'Lost & Stranded',
-        'Other Emergency',
       ],
     },
     title: {
@@ -65,6 +88,10 @@ const incidentSchema = new mongoose.Schema(
       required: [true, 'Severity level is required'],
       enum: ['Low', 'Medium', 'High', 'Critical'],
       default: 'Medium',
+    },
+    incidentDate: {
+      type: Date,
+      default: Date.now,
     },
     location: {
       type: {
@@ -132,8 +159,21 @@ const incidentSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
   }
 );
+
+// Pre-validate hook to generate server incident reference
+incidentSchema.pre('validate', function (next) {
+  if (!this.incidentReference) {
+    this.incidentReference = generateIncidentReference();
+  }
+  if (!this.referenceNumber) {
+    this.referenceNumber = this.incidentReference;
+  }
+  next();
+});
 
 // Indexes
 incidentSchema.index({ 'location': '2dsphere' });
@@ -146,4 +186,5 @@ module.exports = {
   Incident: mongoose.model('Incident', incidentSchema),
   INCIDENT_STATUS,
   VALID_STATUS_TRANSITIONS,
+  generateIncidentReference,
 };
