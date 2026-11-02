@@ -19,8 +19,10 @@ import {
 const SERVICE_CATEGORIES = [
   'Hospital & Medical',
   'Police Station',
-  'Fire & Rescue',
+  'Embassy & Consulate',
+  'Mechanic & Repair',
   'Roadside & Towing',
+  'Fire & Rescue',
   'Coast Guard & Marine',
 ];
 
@@ -30,6 +32,7 @@ export default function ServicesDirectoryPage() {
   const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedRadius, setSelectedRadius] = useState(50000);
   const [activeCenter, setActiveCenter] = useState([6.9271, 79.8612]); // Colombo
+  const [selectedServiceId, setSelectedServiceId] = useState(null);
   const [loading, setLoading] = useState(true);
 
   // 4 Primary Service Cards matching Reference Screen 3
@@ -257,6 +260,9 @@ export default function ServicesDirectoryPage() {
                 center={activeCenter}
                 zoom={12}
                 markers={filteredServices}
+                selectedMarkerId={selectedServiceId}
+                onMarkerClick={(m) => setSelectedServiceId(m._id)}
+                searchRadius={selectedRadius}
                 height="500px"
               />
             </div>
@@ -267,11 +273,19 @@ export default function ServicesDirectoryPage() {
               <div
                 key={service._id}
                 onClick={() => {
+                  setSelectedServiceId(service._id);
                   const lat = service.location?.coordinates?.[1] || service.lat;
                   const lng = service.location?.coordinates?.[0] || service.lng;
                   if (lat && lng) setActiveCenter([lat, lng]);
                 }}
-                className="p-5 rounded-2xl bg-white border border-palette-border hover:border-palette-secondary hover:shadow-card transition-all cursor-pointer space-y-2"
+                className={`
+                  p-5 rounded-2xl bg-white border transition-all cursor-pointer space-y-2
+                  ${
+                    selectedServiceId === service._id
+                      ? 'border-brand-teal shadow-lg ring-2 ring-brand-teal/30 -translate-y-0.5'
+                      : 'border-palette-border hover:border-palette-secondary hover:shadow-card'
+                  }
+                `}
               >
                 <div className="flex items-center justify-between">
                   <span className="text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full bg-palette-secondary/15 text-palette-secondary border border-palette-secondary/20">

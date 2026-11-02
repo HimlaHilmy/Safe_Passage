@@ -26,6 +26,10 @@ app.set('io', io);
 // Start server after connecting to database
 const startServer = async () => {
   await connectDB();
+<<<<<<< HEAD
+  const { seedEmergencyServices } = require('./controllers/serviceController');
+  await seedEmergencyServices();
+=======
   await seedInitialData();
 
   server.on('error', (err) => {
@@ -37,6 +41,7 @@ const startServer = async () => {
       console.error('[Server Error]', err);
     }
   });
+>>>>>>> e3f5fbff3f7c3eb50786efc252d196fdc2fd6370
 
   server.listen(PORT, () => {
     console.log(`=======================================================`);

@@ -23,6 +23,7 @@ const emergencyServiceSchema = new mongoose.Schema(
         'Roadside & Towing',
         'Embassy & Consulate',
         'Coast Guard & Marine',
+        'Mechanic & Repair',
       ],
     },
     address: {
@@ -60,6 +61,10 @@ const emergencyServiceSchema = new mongoose.Schema(
       min: 1,
       max: 5,
       default: 4.8,
+    },
+    isDemonstration: {
+      type: Boolean,
+      default: false,
     },
   },
   {
