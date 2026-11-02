@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
+const path = require('path');
 const errorHandler = require('./middleware/errorHandler');
 const { getDBStatus } = require('./config/db');
 
@@ -27,6 +28,9 @@ app.use(
     allowedHeaders: ['Content-Type', 'Authorization'],
   })
 );
+
+// Serve static uploaded files (fallback storage)
+app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
 
 if (process.env.NODE_ENV !== 'test') {
   app.use(morgan('dev'));

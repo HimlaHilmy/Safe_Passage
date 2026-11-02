@@ -25,28 +25,56 @@ const VALID_STATUS_TRANSITIONS = {
 };
 
 /**
+ * Helper: Generate unique server incident reference
+ * Format: INC-YYYYMMDD-XXXX (e.g. INC-20261028-4821)
+ */
+function generateIncidentReference() {
+  const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+  const randomSuffix = Math.floor(1000 + Math.random() * 9000);
+  return `INC-${dateStr}-${randomSuffix}`;
+}
+
+/**
  * Incident Model
  * Primary Owner: Member 1 (K.H.S. Dulanjani)
  * Co-owner for Status Transitions: Member 3 (J.K.S. Jayasundara)
  */
 const incidentSchema = new mongoose.Schema(
   {
+    incidentReference: {
+      type: String,
+      trim: true,
+      index: true,
+    },
     travelerId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
       required: [true, 'Traveler ID is required'],
+    },
+    incidentReference: {
+      type: String,
+      unique: true,
+      sparse: true,
+      trim: true,
+    },
+    referenceNumber: {
+      type: String,
+      trim: true,
     },
     category: {
       type: String,
       required: [true, 'Emergency category is required'],
       enum: [
         'Medical Emergency',
+        'Lost Passport or Documents',
+        'Theft or Security Incident',
+        'Vehicle Breakdown',
+        'Other Emergency',
         'Roadside & Vehicle Breakdown',
         'Crime & Theft',
         'Natural Hazard & Weather',
         'Fire Emergency',
         'Lost & Stranded',
-        'Other Emergency',
       ],
     },
     title: {
@@ -65,6 +93,10 @@ const incidentSchema = new mongoose.Schema(
       required: [true, 'Severity level is required'],
       enum: ['Low', 'Medium', 'High', 'Critical'],
       default: 'Medium',
+    },
+    incidentDate: {
+      type: Date,
+      default: Date.now,
     },
     location: {
       type: {
@@ -132,8 +164,28 @@ const incidentSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
   }
 );
+
+// Virtual reference identifier
+incidentSchema.virtual('reference').get(function () {
+  if (this.incidentReference) return this.incidentReference;
+  const idStr = this._id ? this._id.toString() : '';
+  const suffix = idStr.length >= 6 ? idStr.slice(-6).toUpperCase() : 'NEW';
+  return `SP-REF-${suffix}`;
+});
+
+// Auto-generate reference code before saving if not present
+incidentSchema.pre('save', function (next) {
+  if (!this.incidentReference) {
+    const idStr = this._id ? this._id.toString() : '';
+    const suffix = idStr.length >= 6 ? idStr.slice(-6).toUpperCase() : Math.floor(1000 + Math.random() * 9000);
+    this.incidentReference = `SP-REF-${suffix}`;
+  }
+  next();
+});
 
 // Indexes
 incidentSchema.index({ 'location': '2dsphere' });
@@ -146,4 +198,5 @@ module.exports = {
   Incident: mongoose.model('Incident', incidentSchema),
   INCIDENT_STATUS,
   VALID_STATUS_TRANSITIONS,
+  generateIncidentReference,
 };

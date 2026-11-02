@@ -8,7 +8,7 @@ const connectDB = async () => {
   try {
     const conn = await mongoose.connect(uri, {
       dbName: 'safe_passage',
-      serverSelectionTimeoutMS: 8000,
+      serverSelectionTimeoutMS: 2500,
     });
     isConnected = true;
     console.log(`[Database] MongoDB Connected successfully: ${conn.connection.host} (DB: ${conn.connection.name})`);

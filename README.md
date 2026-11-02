@@ -86,3 +86,5 @@ All architectural contracts, schemas, and specifications are located in the [`do
 - [Database Schemas & Status Engine](./docs/database-schema.md)
 - [Team Responsibilities](./docs/team-responsibilities.md)
 - [Integration & Git Workflow](./docs/integration-plan.md)
+- [Case Lifecycle Manager Module Specification (Member 3 - Jayasundara)](./docs/CASE_LIFECYCLE_MODULE_JAYASUNDARA.md)
+- [Provider Dispatch Module Specification (Member 4 - Himla)](./docs/PROVIDER_DISPATCH_MODULE_HIMLA.md)

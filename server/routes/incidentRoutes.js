@@ -6,6 +6,7 @@ const {
   getIncidentById,
   updateIncidentStatus,
   getIncidentHistory,
+  addCaseNote,
 } = require('../controllers/incidentController');
 const { protect, authorize } = require('../middleware/auth');
 
@@ -20,5 +21,6 @@ router.route('/:id')
 
 router.patch('/:id/status', updateIncidentStatus);
 router.get('/:id/history', getIncidentHistory);
+router.post('/:id/notes', addCaseNote);
 
 module.exports = router;

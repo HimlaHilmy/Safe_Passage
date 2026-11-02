@@ -4,6 +4,7 @@ const { Server } = require('socket.io');
 const app = require('./app');
 const { connectDB } = require('./config/db');
 const socketHandler = require('./sockets/socketHandler');
+const seedInitialData = require('./utils/seedData');
 
 const PORT = process.env.PORT || 5000;
 const server = http.createServer(app);
@@ -25,8 +26,22 @@ app.set('io', io);
 // Start server after connecting to database
 const startServer = async () => {
   await connectDB();
+<<<<<<< HEAD
   const { seedEmergencyServices } = require('./controllers/serviceController');
   await seedEmergencyServices();
+=======
+  await seedInitialData();
+
+  server.on('error', (err) => {
+    if (err.code === 'EADDRINUSE') {
+      console.warn(`[Server] Port ${PORT} is in use. Trying port ${Number(PORT) + 1}...`);
+      PORT = Number(PORT) + 1;
+      server.listen(PORT);
+    } else {
+      console.error('[Server Error]', err);
+    }
+  });
+>>>>>>> e3f5fbff3f7c3eb50786efc252d196fdc2fd6370
 
   server.listen(PORT, () => {
     console.log(`=======================================================`);
