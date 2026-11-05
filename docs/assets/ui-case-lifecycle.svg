@@ -1,0 +1,200 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 680" width="100%" height="100%">
+  <defs>
+    <filter id="shadow3" x="-10%" y="-5%" width="120%" height="115%">
+      <feDropShadow dx="0" dy="18" stdDeviation="22" flood-color="#0F172A" flood-opacity="0.25"/>
+    </filter>
+    <linearGradient id="activeStepper" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#14B8A6"/>
+      <stop offset="100%" stop-color="#0F766E"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1100" height="680" fill="#0E1726" rx="20"/>
+
+  <g transform="translate(30, 25)" filter="url(#shadow3)">
+    <rect width="1040" height="630" rx="16" fill="#F8FAFC"/>
+
+    <!-- Window Title Bar -->
+    <path d="M0 16 Q0 0 16 0 L1024 0 Q1040 0 1040 16 L1040 48 L0 48 Z" fill="#10243A"/>
+    <circle cx="24" cy="24" r="6" fill="#EF4444"/>
+    <circle cx="44" cy="24" r="6" fill="#F59E0B"/>
+    <circle cx="64" cy="24" r="6" fill="#10B981"/>
+    <rect x="250" y="12" width="540" height="24" rx="6" fill="#1E293B"/>
+    <text x="520" y="28" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" fill="#94A3B8" text-anchor="middle">safepassage.org/traveler/incidents/INC-8942 — Case Lifecycle &amp; Live Tracking</text>
+
+    <!-- Top Emergency Header -->
+    <g transform="translate(24, 64)">
+      <rect width="992" height="74" rx="12" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1"/>
+      
+      <!-- Incident Ref & Badges -->
+      <g transform="translate(20, 16)">
+        <div style="display: flex;">
+          <text x="0" y="22" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="20" font-weight="800" fill="#10243A">Case #INC-8942</text>
+          
+          <!-- Category Badge -->
+          <rect x="175" y="4" width="130" height="24" rx="12" fill="#FEF2F2"/>
+          <text x="240" y="20" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="700" fill="#EF4444" text-anchor="middle">Medical Trauma</text>
+
+          <!-- Severity Badge -->
+          <rect x="312" y="4" width="90" height="24" rx="12" fill="#FEE2E2"/>
+          <text x="357" y="20" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="700" fill="#DC2626" text-anchor="middle">CRITICAL</text>
+        </div>
+        <text x="0" y="44" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11.5" fill="#64748B">Reported: Today at 14:12 UTC • Caller: Traveler Alex (+94 77 123 4567)</text>
+      </g>
+
+      <!-- Live Socket.io Status Indicator -->
+      <g transform="translate(740, 20)">
+        <rect width="230" height="34" rx="17" fill="#F0FDF4" stroke="#86EFAC" stroke-width="1"/>
+        <circle cx="20" cy="17" r="5" fill="#22C55E"/>
+        <circle cx="20" cy="17" r="9" fill="none" stroke="#22C55E" stroke-opacity="0.4" stroke-width="2"/>
+        <text x="36" y="22" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11.5" font-weight="700" fill="#15803D">Live Socket.io Synchronized</text>
+      </g>
+    </g>
+
+    <!-- FSM Lifecycle Stepper (Member 3 Highlight) -->
+    <g transform="translate(24, 150)">
+      <rect width="992" height="74" rx="12" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1"/>
+      
+      <!-- Stepper Progress Bar Background -->
+      <line x1="80" y1="36" x2="910" y2="36" stroke="#E2E8F0" stroke-width="4"/>
+      <!-- Active Progress Filled up to Step 4 -->
+      <line x1="80" y1="36" x2="570" y2="36" stroke="#14B8A6" stroke-width="4"/>
+
+      <!-- Step 1: Submitted (Passed) -->
+      <g transform="translate(80, 36)">
+        <circle cx="0" cy="0" r="14" fill="#14B8A6"/>
+        <text x="0" y="4" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" fill="#FFFFFF" font-weight="700" text-anchor="middle">✓</text>
+        <text x="0" y="26" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="600" fill="#1E293B" text-anchor="middle">Submitted</text>
+      </g>
+
+      <!-- Step 2: Under Review (Passed) -->
+      <g transform="translate(245, 36)">
+        <circle cx="0" cy="0" r="14" fill="#14B8A6"/>
+        <text x="0" y="4" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" fill="#FFFFFF" font-weight="700" text-anchor="middle">✓</text>
+        <text x="0" y="26" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="600" fill="#1E293B" text-anchor="middle">Under Review</text>
+      </g>
+
+      <!-- Step 3: Assigned (Passed) -->
+      <g transform="translate(410, 36)">
+        <circle cx="0" cy="0" r="14" fill="#14B8A6"/>
+        <text x="0" y="4" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" fill="#FFFFFF" font-weight="700" text-anchor="middle">✓</text>
+        <text x="0" y="26" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="600" fill="#1E293B" text-anchor="middle">Assigned</text>
+      </g>
+
+      <!-- Step 4: Dispatched (ACTIVE MILESTONE) -->
+      <g transform="translate(575, 36)">
+        <circle cx="0" cy="0" r="18" fill="#14B8A6"/>
+        <circle cx="0" cy="0" r="24" fill="none" stroke="#14B8A6" stroke-opacity="0.3" stroke-width="2"/>
+        <text x="0" y="4" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" fill="#FFFFFF" font-weight="800" text-anchor="middle">4</text>
+        <text x="0" y="28" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11.5" font-weight="800" fill="#0F766E" text-anchor="middle">Dispatched (En Route)</text>
+      </g>
+
+      <!-- Step 5: In Progress (Pending) -->
+      <g transform="translate(740, 36)">
+        <circle cx="0" cy="0" r="14" fill="#F1F5F9" stroke="#CBD5E1" stroke-width="2"/>
+        <text x="0" y="4" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" fill="#94A3B8" font-weight="700" text-anchor="middle">5</text>
+        <text x="0" y="26" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="500" fill="#64748B" text-anchor="middle">In Progress</text>
+      </g>
+
+      <!-- Step 6: Resolved (Pending) -->
+      <g transform="translate(905, 36)">
+        <circle cx="0" cy="0" r="14" fill="#F1F5F9" stroke="#CBD5E1" stroke-width="2"/>
+        <text x="0" y="4" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" fill="#94A3B8" font-weight="700" text-anchor="middle">6</text>
+        <text x="0" y="26" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="500" fill="#64748B" text-anchor="middle">Resolved</text>
+      </g>
+    </g>
+
+    <!-- Dual Column Split: Active Unit & Immutable CaseLog Timeline -->
+    <g transform="translate(24, 236)">
+      <!-- Left Column: Assigned Unit Card & Location Map -->
+      <g transform="translate(0, 0)">
+        <rect width="460" height="375" rx="12" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1"/>
+        
+        <text x="20" y="28" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="13" font-weight="700" fill="#1E293B">ALLOCATED RESPONSE UNIT</text>
+
+        <!-- Provider Card -->
+        <g transform="translate(18, 42)">
+          <rect width="424" height="110" rx="10" fill="#F0FDFA" stroke="#99F6E4" stroke-width="1.5"/>
+          <circle cx="36" cy="38" r="22" fill="#14B8A6"/>
+          <text x="36" y="44" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="18" text-anchor="middle">🚑</text>
+          
+          <text x="70" y="30" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="14" font-weight="800" fill="#0F766E">Unit 04 — Colombo Central Paramedics</text>
+          <text x="70" y="48" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11.5" fill="#334155">Driver: K. Perera • Vehicle: WP-CAD-4921</text>
+          
+          <g transform="translate(70, 64)">
+            <rect width="84" height="22" rx="6" fill="#10243A"/>
+            <text x="42" y="15" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10.5" font-weight="700" fill="#FFFFFF" text-anchor="middle">ETA: 6 Mins</text>
+            
+            <rect x="94" y="0" width="115" height="22" rx="6" fill="#14B8A6"/>
+            <text x="151" y="15" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10.5" font-weight="700" fill="#FFFFFF" text-anchor="middle">📞 Direct Call</text>
+          </g>
+        </g>
+
+        <!-- Mini Live Leaflet Tracking Map -->
+        <g transform="translate(18, 164)">
+          <rect width="424" height="130" rx="10" fill="#E2E8F0"/>
+          <!-- Map path -->
+          <path d="M 40 100 Q 180 50 380 70" stroke="#14B8A6" stroke-width="4" stroke-dasharray="6 4" fill="none"/>
+          <circle cx="60" cy="95" r="8" fill="#14B8A6"/>
+          <circle cx="360" cy="72" r="10" fill="#EF4444"/>
+          <text x="212" y="118" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10.5" font-weight="600" fill="#475569" text-anchor="middle">Rescue Unit is 1.8km away on Marine Drive</text>
+        </g>
+
+        <!-- Actions -->
+        <g transform="translate(18, 310)">
+          <rect width="180" height="38" rx="8" fill="#FEF2F2" stroke="#FCA5A5" stroke-width="1"/>
+          <text x="90" y="24" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" font-weight="700" fill="#DC2626" text-anchor="middle">Cancel Emergency</text>
+
+          <rect x="195" y="0" width="229" height="38" rx="8" fill="#10243A"/>
+          <text x="309" y="24" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" font-weight="700" fill="#FFFFFF" text-anchor="middle">Add Operator Note</text>
+        </g>
+      </g>
+
+      <!-- Right Column: Immutable CaseLog Audit Timeline -->
+      <g transform="translate(480, 0)">
+        <rect width="512" height="375" rx="12" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1"/>
+        
+        <text x="24" y="28" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="13" font-weight="700" fill="#1E293B">IMMUTABLE CASELOG AUDIT TRAIL</text>
+        <text x="340" y="28" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" fill="#94A3B8">Append-Only MongoDB</text>
+
+        <!-- Timeline Items -->
+        <g transform="translate(24, 46)">
+          <line x1="14" y1="12" x2="14" y2="280" stroke="#E2E8F0" stroke-width="2"/>
+
+          <!-- Item 1: Dispatched (Latest) -->
+          <g transform="translate(0, 0)">
+            <circle cx="14" cy="12" r="8" fill="#14B8A6"/>
+            <text x="32" y="10" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" font-weight="700" fill="#0F766E">Assistance Dispatched</text>
+            <text x="340" y="10" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10.5" fill="#94A3B8">14:18:24 UTC</text>
+            <text x="32" y="26" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11.5" fill="#334155">By: Provider Unit 04 (Himla Fleet) • "En route via Galle Road with paramedic"</text>
+          </g>
+
+          <!-- Item 2: Assigned -->
+          <g transform="translate(0, 56)">
+            <circle cx="14" cy="12" r="7" fill="#3B82F6"/>
+            <text x="32" y="10" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" font-weight="700" fill="#1E40AF">Assigned to Provider</text>
+            <text x="340" y="10" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10.5" fill="#94A3B8">14:15:10 UTC</text>
+            <text x="32" y="26" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11.5" fill="#334155">By: Dispatcher Admin Hirunika • Priority tagged CRITICAL-A1</text>
+          </g>
+
+          <!-- Item 3: Under Review -->
+          <g transform="translate(0, 112)">
+            <circle cx="14" cy="12" r="7" fill="#F59E0B"/>
+            <text x="32" y="10" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" font-weight="700" fill="#B45309">Under Review</text>
+            <text x="340" y="10" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10.5" fill="#94A3B8">14:13:05 UTC</text>
+            <text x="32" y="26" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11.5" fill="#334155">GPS coordinates verified within 6m accuracy; nearest trauma alerted.</text>
+          </g>
+
+          <!-- Item 4: Submitted (Initial) -->
+          <g transform="translate(0, 168)">
+            <circle cx="14" cy="12" r="7" fill="#64748B"/>
+            <text x="32" y="10" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" font-weight="700" fill="#334155">Incident Submitted</text>
+            <text x="340" y="10" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10.5" fill="#94A3B8">14:12:00 UTC</text>
+            <text x="32" y="26" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11.5" fill="#334155">Distress beacon initiated by traveler via mobile web client.</text>
+          </g>
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>
+

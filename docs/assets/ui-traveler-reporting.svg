@@ -1,0 +1,218 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 680" width="100%" height="100%">
+  <defs>
+    <filter id="shadow1" x="-10%" y="-5%" width="120%" height="115%">
+      <feDropShadow dx="0" dy="18" stdDeviation="22" flood-color="#0F172A" flood-opacity="0.25"/>
+    </filter>
+    <linearGradient id="primaryGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10243A"/>
+      <stop offset="100%" stop-color="#183B56"/>
+    </linearGradient>
+    <linearGradient id="tealBtn" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#14B8A6"/>
+      <stop offset="100%" stop-color="#0F766E"/>
+    </linearGradient>
+    <linearGradient id="sosRed" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#EF4444"/>
+      <stop offset="100%" stop-color="#DC2626"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background Base -->
+  <rect width="1100" height="680" fill="#0E1726" rx="20"/>
+
+  <!-- Window Container -->
+  <g transform="translate(30, 25)" filter="url(#shadow1)">
+    <!-- Window Body -->
+    <rect width="1040" height="630" rx="16" fill="#F8FAFC"/>
+
+    <!-- Window Title Bar -->
+    <path d="M0 16 Q0 0 16 0 L1024 0 Q1040 0 1040 16 L1040 48 L0 48 Z" fill="#10243A"/>
+    <!-- macOS Dots -->
+    <circle cx="24" cy="24" r="6" fill="#EF4444"/>
+    <circle cx="44" cy="24" r="6" fill="#F59E0B"/>
+    <circle cx="64" cy="24" r="6" fill="#10B981"/>
+
+    <!-- Address / Title -->
+    <rect x="260" y="12" width="520" height="24" rx="6" fill="#1E293B"/>
+    <text x="520" y="28" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" fill="#94A3B8" text-anchor="middle">safepassage.org/traveler/report — Traveler Emergency Distress Wizard</text>
+
+    <!-- Sidebar Navigation -->
+    <g transform="translate(0, 48)">
+      <rect width="210" height="582" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1"/>
+      <!-- App Brand -->
+      <g transform="translate(20, 20)">
+        <rect width="32" height="32" rx="8" fill="#14B8A6"/>
+        <path d="M16 6 L26 11 C26 21 21 26 16 28 C11 26 6 21 6 11 Z" fill="#10243A"/>
+        <text x="42" y="21" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="14" font-weight="700" fill="#10243A">Safe Passage</text>
+      </g>
+
+      <!-- Nav Items -->
+      <g transform="translate(14, 80)">
+        <!-- Inactive -->
+        <rect width="182" height="38" rx="8" fill="transparent"/>
+        <text x="36" y="24" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="13" fill="#64748B">Overview Portal</text>
+
+        <!-- Active: Report Emergency -->
+        <g transform="translate(0, 46)">
+          <rect width="182" height="38" rx="8" fill="#FEF2F2" stroke="#FCA5A5" stroke-width="1"/>
+          <circle cx="20" cy="19" r="4" fill="#EF4444"/>
+          <text x="36" y="24" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="13" font-weight="700" fill="#DC2626">Report Emergency</text>
+        </g>
+
+        <!-- Inactive -->
+        <g transform="translate(0, 92)">
+          <text x="36" y="24" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="13" fill="#64748B">Services Radar</text>
+        </g>
+        <g transform="translate(0, 138)">
+          <text x="36" y="24" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="13" fill="#64748B">My Incidents</text>
+          <rect x="145" y="8" width="24" height="18" rx="9" fill="#14B8A6" fill-opacity="0.15"/>
+          <text x="157" y="21" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="700" fill="#0F766E" text-anchor="middle">2</text>
+        </g>
+        <g transform="translate(0, 184)">
+          <text x="36" y="24" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="13" fill="#64748B">Roadside Help</text>
+        </g>
+      </g>
+
+      <!-- User card bottom -->
+      <g transform="translate(14, 510)">
+        <rect width="182" height="52" rx="10" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="1"/>
+        <circle cx="26" cy="26" r="14" fill="#10243A"/>
+        <text x="26" y="30" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" fill="#FFFFFF" text-anchor="middle" font-weight="700">TK</text>
+        <text x="48" y="22" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" font-weight="600" fill="#1E293B">Traveler Alex</text>
+        <text x="48" y="38" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10.5" fill="#64748B">Verified Traveler</text>
+      </g>
+    </g>
+
+    <!-- Main Workspace Area -->
+    <g transform="translate(230, 64)">
+      <!-- Page Header -->
+      <text x="0" y="24" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="22" font-weight="800" fill="#10243A">File Emergency Distress Beacon</text>
+      <text x="0" y="44" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="13" fill="#64748B">Direct satellite and terrestrial routing to verified emergency response teams in Sri Lanka.</text>
+
+      <!-- 4-Step Indicator -->
+      <g transform="translate(0, 62)">
+        <rect width="780" height="52" rx="12" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1"/>
+        
+        <!-- Step 1: Complete -->
+        <circle cx="40" cy="26" r="12" fill="#22C55E"/>
+        <text x="40" y="30" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" fill="#FFFFFF" font-weight="700" text-anchor="middle">✓</text>
+        <text x="60" y="30" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" font-weight="600" fill="#1E293B">1. Category</text>
+        <line x1="140" y1="26" x2="190" y2="26" stroke="#22C55E" stroke-width="2"/>
+
+        <!-- Step 2: Complete -->
+        <circle cx="215" cy="26" r="12" fill="#22C55E"/>
+        <text x="215" y="30" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" fill="#FFFFFF" font-weight="700" text-anchor="middle">✓</text>
+        <text x="235" y="30" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" font-weight="600" fill="#1E293B">2. Details</text>
+        <line x1="305" y1="26" x2="355" y2="26" stroke="#14B8A6" stroke-width="2"/>
+
+        <!-- Step 3: Active -->
+        <circle cx="380" cy="26" r="13" fill="#14B8A6"/>
+        <text x="380" y="30" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" fill="#FFFFFF" font-weight="700" text-anchor="middle">3</text>
+        <text x="402" y="30" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" font-weight="700" fill="#0F766E">3. GPS Location</text>
+        <line x1="500" y1="26" x2="550" y2="26" stroke="#CBD5E1" stroke-width="2"/>
+
+        <!-- Step 4: Upcoming -->
+        <circle cx="575" cy="26" r="12" fill="#E2E8F0"/>
+        <text x="575" y="30" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" fill="#64748B" font-weight="700" text-anchor="middle">4</text>
+        <text x="595" y="30" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" font-weight="500" fill="#94A3B8">4. Review &amp; Transmit</text>
+      </g>
+
+      <!-- Main Form Container -->
+      <g transform="translate(0, 130)">
+        <rect width="780" height="400" rx="14" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1"/>
+
+        <!-- Category Selector Cards -->
+        <g transform="translate(24, 20)">
+          <text x="0" y="14" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" font-weight="700" fill="#475569" letter-spacing="0.5">SELECTED EMERGENCY TYPE</text>
+          
+          <!-- Card 1: Medical (Selected) -->
+          <g transform="translate(0, 26)">
+            <rect width="168" height="58" rx="10" fill="#FEF2F2" stroke="#EF4444" stroke-width="2"/>
+            <circle cx="26" cy="29" r="14" fill="#FEE2E2"/>
+            <text x="26" y="34" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="14" text-anchor="middle">🚑</text>
+            <text x="48" y="26" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" font-weight="700" fill="#991B1B">Medical Trauma</text>
+            <text x="48" y="42" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10" fill="#B91C1C">High Priority</text>
+          </g>
+
+          <!-- Card 2: Roadside -->
+          <g transform="translate(184, 26)">
+            <rect width="168" height="58" rx="10" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="1"/>
+            <text x="26" y="34" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="14" text-anchor="middle">🚗</text>
+            <text x="48" y="26" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" font-weight="600" fill="#334155">Road Accident</text>
+            <text x="48" y="42" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10" fill="#64748B">Mechanical / Collision</text>
+          </g>
+
+          <!-- Card 3: Security / Police -->
+          <g transform="translate(368, 26)">
+            <rect width="168" height="58" rx="10" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="1"/>
+            <text x="26" y="34" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="14" text-anchor="middle">👮</text>
+            <text x="48" y="26" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" font-weight="600" fill="#334155">Crime &amp; Safety</text>
+            <text x="48" y="42" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10" fill="#64748B">Police Intervention</text>
+          </g>
+
+          <!-- Card 4: Natural Hazard -->
+          <g transform="translate(552, 26)">
+            <rect width="176" height="58" rx="10" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="1"/>
+            <text x="26" y="34" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="14" text-anchor="middle">🌊</text>
+            <text x="48" y="26" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" font-weight="600" fill="#334155">Natural Hazard</text>
+            <text x="48" y="42" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10" fill="#64748B">Weather / Landslide</text>
+          </g>
+        </g>
+
+        <!-- Step 3 GPS Panel inside form -->
+        <g transform="translate(24, 126)">
+          <text x="0" y="14" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" font-weight="700" fill="#475569" letter-spacing="0.5">GEOLOCATION DETECTION &amp; SATELLITE FIX</text>
+
+          <!-- GPS Info Box -->
+          <g transform="translate(0, 26)">
+            <rect width="420" height="150" rx="10" fill="#F0FDFA" stroke="#99F6E4" stroke-width="1.5"/>
+            <!-- Pulsing Radar Target -->
+            <circle cx="36" cy="36" r="16" fill="#14B8A6" fill-opacity="0.2"/>
+            <circle cx="36" cy="36" r="7" fill="#0F766E"/>
+            <text x="64" y="32" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="13" font-weight="700" fill="#0F766E">High Accuracy GPS Acquired (± 6 meters)</text>
+            <text x="64" y="48" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" fill="#0D9488">2dsphere Coordinates: [ 79.8612° E, 6.9271° N ]</text>
+
+            <line x1="20" y1="68" x2="400" y2="68" stroke="#CCFBF1" stroke-width="1"/>
+            
+            <text x="20" y="90" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="600" fill="#334155">Resolved Landmark Address:</text>
+            <text x="20" y="108" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" fill="#0F172A">Galle Face Green Promenade, Colombo 03, Western Province</text>
+            
+            <rect x="20" y="120" width="130" height="20" rx="4" fill="#CCFBF1"/>
+            <text x="28" y="134" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10" font-weight="700" fill="#0F766E">Nearest Hospital: 1.2 km</text>
+          </g>
+
+          <!-- Mini Map Radar preview -->
+          <g transform="translate(436, 26)">
+            <rect width="292" height="150" rx="10" fill="#E2E8F0" stroke="#CBD5E1" stroke-width="1"/>
+            <!-- Map grid styling -->
+            <path d="M 436 70 Q 560 60 728 100" stroke="#94A3B8" stroke-width="8" fill="none"/>
+            <path d="M 520 26 L 540 176" stroke="#FFFFFF" stroke-width="6" fill="none"/>
+            <path d="M 640 26 L 620 176" stroke="#FFFFFF" stroke-width="4" fill="none"/>
+            <!-- Pin Center -->
+            <circle cx="140" cy="75" r="26" fill="#EF4444" fill-opacity="0.25"/>
+            <circle cx="140" cy="75" r="10" fill="#EF4444" stroke="#FFFFFF" stroke-width="2"/>
+            <rect x="80" y="112" width="120" height="24" rx="12" fill="#10243A"/>
+            <text x="140" y="128" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10.5" font-weight="700" fill="#FFFFFF" text-anchor="middle">Emergency Origin</text>
+          </g>
+        </g>
+
+        <!-- Form Footer Controls -->
+        <g transform="translate(24, 325)">
+          <line x1="0" y1="0" x2="728" y2="0" stroke="#E2E8F0" stroke-width="1"/>
+
+          <!-- Back Button -->
+          <rect x="0" y="18" width="100" height="40" rx="8" fill="#F1F5F9"/>
+          <text x="50" y="42" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" font-weight="600" fill="#475569" text-anchor="middle">← Back</text>
+
+          <!-- Action SOS Button -->
+          <g transform="translate(488, 16)">
+            <rect width="240" height="44" rx="10" fill="url(#sosRed)"/>
+            <circle cx="28" cy="22" r="5" fill="#FFFFFF"/>
+            <text x="44" y="27" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="13" font-weight="800" fill="#FFFFFF" letter-spacing="0.5">TRANSMIT DISTRESS SOS</text>
+          </g>
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>
+
