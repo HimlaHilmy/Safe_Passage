@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import io from 'socket.io-client';
 import { useAuth } from '../../context/AuthContext';
 import PageHeader from '../../components/common/PageHeader';
 import Card from '../../components/common/Card';
@@ -61,6 +62,30 @@ export default function AdminDashboardPage() {
 
   useEffect(() => {
     fetchDashboardData();
+  }, []);
+
+  // Real-time Socket.io listener to keep counts and live incident map updated
+  useEffect(() => {
+    const socketUrl = import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000';
+    const socket = io(socketUrl, {
+      transports: ['websocket', 'polling'],
+    });
+
+    socket.on('connect', () => {
+      socket.emit('join_role_channel', 'admin');
+    });
+
+    socket.on('incident_updated', () => {
+      fetchDashboardData();
+    });
+
+    socket.on('new_incident_alert', () => {
+      fetchDashboardData();
+    });
+
+    return () => {
+      socket.disconnect();
+    };
   }, []);
 
   const fetchDashboardData = async () => {

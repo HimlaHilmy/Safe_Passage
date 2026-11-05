@@ -44,3 +44,6 @@ desktop.ini
 uploads/
 temp/
 scratch/
+
+data_db/
+server/data_db/

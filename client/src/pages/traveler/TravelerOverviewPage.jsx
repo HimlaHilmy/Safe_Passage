@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import io from 'socket.io-client';
 import { useAuth } from '../../context/AuthContext';
 import PageHeader from '../../components/common/PageHeader';
 import Card from '../../components/common/Card';
@@ -69,6 +70,30 @@ export default function TravelerOverviewPage() {
 
   useEffect(() => {
     fetchTravelerIncidents();
+  }, []);
+
+  // Real-time Socket.io updates for traveler incident counts & active emergency status
+  useEffect(() => {
+    const socketUrl = import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000';
+    const socket = io(socketUrl, {
+      transports: ['websocket', 'polling'],
+    });
+
+    socket.on('connect', () => {
+      socket.emit('join_role_channel', 'traveler');
+    });
+
+    socket.on('incident_updated', () => {
+      fetchTravelerIncidents();
+    });
+
+    socket.on('new_incident_alert', () => {
+      fetchTravelerIncidents();
+    });
+
+    return () => {
+      socket.disconnect();
+    };
   }, []);
 
   const fetchTravelerIncidents = async () => {
@@ -240,8 +265,8 @@ export default function TravelerOverviewPage() {
           title="Emergency Facilities Near You"
           subtitle="Explore verified trauma hospitals, police divisions, and rescue points"
           action={
-            <Link to="/services">
-              <span className="text-xs font-bold text-brand-teal hover:underline">View Map &rarr;</span>
+            <Link to="/traveler/services">
+              <span className="text-xs font-bold text-brand-teal hover:underline">Find Services &rarr;</span>
             </Link>
           }
         >
@@ -270,6 +295,14 @@ export default function TravelerOverviewPage() {
               <a href="tel:119" className="font-extrabold text-brand-teal hover:underline px-2.5 py-1 rounded-lg bg-teal-50 border border-teal-200">
                 Call: 119
               </a>
+            </div>
+
+            <div className="pt-2">
+              <Link to="/traveler/services">
+                <Button variant="outline" size="sm" icon={MapPin} className="w-full justify-center">
+                  Search All Emergency Services on Map
+                </Button>
+              </Link>
             </div>
           </div>
         </Card>

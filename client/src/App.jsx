@@ -73,13 +73,9 @@ export default function App() {
               <Route index element={<TravelerOverviewPage />} />
               <Route path="dashboard" element={<TravelerOverviewPage />} />
               <Route path="report" element={<ReportEmergencyPage />} />
-<<<<<<< HEAD
+              <Route path="report-emergency" element={<ReportEmergencyPage />} />
               <Route path="services" element={<TravelerServicesPage />} />
               <Route path="map" element={<TravelerMapPage />} />
-=======
-              <Route path="report-emergency" element={<ReportEmergencyPage />} />
-              <Route path="services" element={<ServicesDirectoryPage />} />
->>>>>>> e3f5fbff3f7c3eb50786efc252d196fdc2fd6370
               <Route path="incidents" element={<MyIncidentsPage />} />
               <Route path="incidents/:id" element={<IncidentTrackingPage />} />
               <Route path="roadside" element={<RoadsidePage />} />

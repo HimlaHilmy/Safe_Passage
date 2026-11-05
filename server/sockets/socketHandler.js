@@ -18,6 +18,12 @@ module.exports = (io) => {
       console.log(`[Socket.io] Socket ${socket.id} subscribed to role_${role}`);
     });
 
+    // Join room for user-specific alerts
+    socket.on('join_user_channel', (userId) => {
+      socket.join(`user_${userId}`);
+      console.log(`[Socket.io] Socket ${socket.id} subscribed to user_${userId}`);
+    });
+
     // Traveler emits emergency beacon
     socket.on('report_emergency', (incidentData) => {
       io.to('role_admin').emit('new_incident_alert', incidentData);

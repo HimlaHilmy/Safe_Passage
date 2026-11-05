@@ -1,12 +1,15 @@
-require('dotenv').config();
+const path = require('path');
+require('dotenv').config({ path: path.resolve(__dirname, '.env') });
+require('dotenv').config(); // Also check root cwd
 const http = require('http');
 const { Server } = require('socket.io');
 const app = require('./app');
 const { connectDB } = require('./config/db');
 const socketHandler = require('./sockets/socketHandler');
 const seedInitialData = require('./utils/seedData');
+const { seedEmergencyServices } = require('./controllers/serviceController');
 
-const PORT = process.env.PORT || 5000;
+let PORT = process.env.PORT || 5000;
 const server = http.createServer(app);
 
 // Setup Socket.io
@@ -26,11 +29,8 @@ app.set('io', io);
 // Start server after connecting to database
 const startServer = async () => {
   await connectDB();
-<<<<<<< HEAD
-  const { seedEmergencyServices } = require('./controllers/serviceController');
-  await seedEmergencyServices();
-=======
   await seedInitialData();
+  await seedEmergencyServices();
 
   server.on('error', (err) => {
     if (err.code === 'EADDRINUSE') {
@@ -41,7 +41,6 @@ const startServer = async () => {
       console.error('[Server Error]', err);
     }
   });
->>>>>>> e3f5fbff3f7c3eb50786efc252d196fdc2fd6370
 
   server.listen(PORT, () => {
     console.log(`=======================================================`);

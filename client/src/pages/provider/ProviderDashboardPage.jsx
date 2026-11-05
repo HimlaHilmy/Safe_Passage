@@ -263,12 +263,7 @@ export default function ProviderDashboardPage() {
         title={user?.name || 'Emergency Service Unit'}
         subtitle="Provider Dispatch Workspace • Live Assistance Queue & Active Field Operations"
         breadcrumbs={['Provider Workspace', 'Dashboard']}
-        badge={
-          <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-teal/15 text-brand-teal-dark border border-brand-teal/30 text-xs font-bold">
-            <Radio className="w-3.5 h-3.5 text-brand-teal animate-pulse" />
-            <span>Himla Lead Module: Assistance Dispatch</span>
-          </div>
-        }
+
         action={
           <div className="flex items-center gap-3">
             <button
@@ -285,16 +280,14 @@ export default function ProviderDashboardPage() {
               <span className="hidden sm:inline text-xs font-bold text-slate-600 pl-2">Duty Mode:</span>
               <button
                 onClick={handleToggleDuty}
-                className={`px-3.5 py-1.5 rounded-xl text-xs font-extrabold flex items-center gap-2 transition-all ${
-                  isAvailable
-                    ? 'bg-emerald-600 text-white shadow-xs hover:bg-emerald-700'
-                    : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
-                }`}
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-extrabold flex items-center gap-2 transition-all ${isAvailable
+                  ? 'bg-emerald-600 text-white shadow-xs hover:bg-emerald-700'
+                  : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
+                  }`}
               >
                 <span
-                  className={`w-2.5 h-2.5 rounded-full ${
-                    isAvailable ? 'bg-white animate-pulse' : 'bg-slate-400'
-                  }`}
+                  className={`w-2.5 h-2.5 rounded-full ${isAvailable ? 'bg-white animate-pulse' : 'bg-slate-400'
+                    }`}
                 />
                 <span>{isAvailable ? 'AVAILABLE FOR DISPATCH' : 'OFF DUTY'}</span>
               </button>

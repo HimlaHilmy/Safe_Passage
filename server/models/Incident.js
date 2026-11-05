@@ -17,8 +17,8 @@ const INCIDENT_STATUS = {
 const VALID_STATUS_TRANSITIONS = {
   [INCIDENT_STATUS.SUBMITTED]: [INCIDENT_STATUS.UNDER_REVIEW, INCIDENT_STATUS.CANCELLED],
   [INCIDENT_STATUS.UNDER_REVIEW]: [INCIDENT_STATUS.ASSIGNED, INCIDENT_STATUS.CANCELLED],
-  [INCIDENT_STATUS.ASSIGNED]: [INCIDENT_STATUS.ASSISTANCE_DISPATCHED, INCIDENT_STATUS.CANCELLED],
-  [INCIDENT_STATUS.ASSISTANCE_DISPATCHED]: [INCIDENT_STATUS.IN_PROGRESS, INCIDENT_STATUS.CANCELLED],
+  [INCIDENT_STATUS.ASSIGNED]: [INCIDENT_STATUS.ASSISTANCE_DISPATCHED, INCIDENT_STATUS.UNDER_REVIEW, INCIDENT_STATUS.CANCELLED],
+  [INCIDENT_STATUS.ASSISTANCE_DISPATCHED]: [INCIDENT_STATUS.IN_PROGRESS, INCIDENT_STATUS.RESOLVED, INCIDENT_STATUS.CANCELLED],
   [INCIDENT_STATUS.IN_PROGRESS]: [INCIDENT_STATUS.RESOLVED, INCIDENT_STATUS.CANCELLED],
   [INCIDENT_STATUS.RESOLVED]: [], // Terminal state
   [INCIDENT_STATUS.CANCELLED]: [], // Terminal state
@@ -41,11 +41,6 @@ function generateIncidentReference() {
  */
 const incidentSchema = new mongoose.Schema(
   {
-    incidentReference: {
-      type: String,
-      trim: true,
-      index: true,
-    },
     travelerId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
@@ -53,13 +48,15 @@ const incidentSchema = new mongoose.Schema(
     },
     incidentReference: {
       type: String,
-      unique: true,
       sparse: true,
       trim: true,
+      index: true,
     },
     referenceNumber: {
       type: String,
+      sparse: true,
       trim: true,
+      index: true,
     },
     category: {
       type: String,
@@ -180,9 +177,10 @@ incidentSchema.virtual('reference').get(function () {
 // Auto-generate reference code before saving if not present
 incidentSchema.pre('save', function (next) {
   if (!this.incidentReference) {
-    const idStr = this._id ? this._id.toString() : '';
-    const suffix = idStr.length >= 6 ? idStr.slice(-6).toUpperCase() : Math.floor(1000 + Math.random() * 9000);
-    this.incidentReference = `SP-REF-${suffix}`;
+    this.incidentReference = generateIncidentReference();
+  }
+  if (!this.referenceNumber) {
+    this.referenceNumber = this.incidentReference;
   }
   next();
 });

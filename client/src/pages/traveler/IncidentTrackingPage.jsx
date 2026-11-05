@@ -45,7 +45,7 @@ export default function IncidentTrackingPage() {
   // Real-time Socket.io Room Tracking
   useEffect(() => {
     if (!id) return;
-    const socketUrl = import.meta.env.VITE_SOCKET_URL || 'http://localhost:5001';
+    const socketUrl = import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000';
     const socket = io(socketUrl, {
       transports: ['websocket', 'polling'],
     });
@@ -78,7 +78,7 @@ export default function IncidentTrackingPage() {
 
   const fetchIncidentDetails = async () => {
     setLoading(true);
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
     try {
       const [incRes, logRes] = await Promise.all([
@@ -177,7 +177,7 @@ export default function IncidentTrackingPage() {
 
   const handleAdvanceStatus = async (nextStatus) => {
     setIsUpdating(true);
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
     try {
       const res = await fetch(`${apiUrl}/incidents/${id}/status`, {
@@ -227,7 +227,7 @@ export default function IncidentTrackingPage() {
     if (!caseNote.trim()) return;
 
     setIsUpdating(true);
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
     try {
       const res = await fetch(`${apiUrl}/incidents/${id}/notes`, {

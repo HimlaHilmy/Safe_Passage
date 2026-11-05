@@ -232,26 +232,13 @@ export default function ReportEmergencyPage() {
         addToast('Emergency report received and logged by server dispatch!', 'success');
         setSubmittedIncident(resData.data);
       } else {
-        throw new Error(resData.message || 'Server rejected incident submission');
+        const errorMsg = resData.message || resData.error || 'Server rejected incident submission';
+        throw new Error(errorMsg);
       }
     } catch (err) {
-      console.warn('[Submission Error Fallback]:', err.message);
-      // Fallback offline mock response with real server format
-      const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
-      const randomSuffix = Math.floor(1000 + Math.random() * 9000);
-      const generatedRef = `INC-${dateStr}-${randomSuffix}`;
-
-      const fallbackIncident = {
-        _id: '65f' + Math.random().toString(16).substring(2, 23),
-        incidentReference: generatedRef,
-        referenceNumber: generatedRef,
-        ...payload,
-        status: 'Submitted',
-        createdAt: new Date(),
-      };
-
-      setSubmittedIncident(fallbackIncident);
-      addToast('Incident submitted and queued successfully.', 'success');
+      console.error('[Submission Error]:', err.message);
+      setSubmissionError(err.message || 'Failed to submit emergency report to the server. Please verify database connectivity.');
+      addToast(err.message || 'Failed to submit emergency report to the server.', 'error');
     } finally {
       setIsSubmitting(false);
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -288,12 +275,7 @@ export default function ReportEmergencyPage() {
         title="Report an Emergency Incident"
         subtitle="Complete the guided 4-step wizard to dispatch rapid assistance or lock your coordinates."
         breadcrumbs={['Traveler', 'Report Emergency']}
-        badge={
-          <span className="text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full bg-brand-teal/15 text-brand-navy border border-brand-teal/30 flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-emergency-red animate-ping" />
-            Member 1 Module: Reporting System
-          </span>
-        }
+
         action={
           <button
             type="button"
@@ -417,9 +399,8 @@ export default function ReportEmergencyPage() {
                   if (errors.description) setErrors({ ...errors, description: null });
                 }}
                 placeholder="Describe current condition, passengers/parties involved, immediate hazards, vehicle state, or physical injuries..."
-                className={`w-full rounded-2xl border p-4 text-sm text-brand-navy placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-teal/40 focus:border-brand-teal transition-all ${
-                  errors.description ? 'border-emergency-red bg-red-50/20' : 'border-slate-200 bg-white'
-                }`}
+                className={`w-full rounded-2xl border p-4 text-sm text-brand-navy placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-teal/40 focus:border-brand-teal transition-all ${errors.description ? 'border-emergency-red bg-red-50/20' : 'border-slate-200 bg-white'
+                  }`}
                 required
               />
               {errors.description && (
@@ -473,9 +454,8 @@ export default function ReportEmergencyPage() {
                     setErrors({ ...errors, incidentDateTime: null });
                   }
                 }}
-                className={`w-full rounded-xl border p-3 text-sm text-brand-navy focus:outline-none focus:ring-2 focus:ring-brand-teal/40 focus:border-brand-teal bg-white ${
-                  errors.incidentDateTime ? 'border-emergency-red' : 'border-slate-200'
-                }`}
+                className={`w-full rounded-xl border p-3 text-sm text-brand-navy focus:outline-none focus:ring-2 focus:ring-brand-teal/40 focus:border-brand-teal bg-white ${errors.incidentDateTime ? 'border-emergency-red' : 'border-slate-200'
+                  }`}
                 required
               />
               {errors.incidentDateTime && (

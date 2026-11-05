@@ -47,7 +47,7 @@ export default function MyIncidentsPage() {
 
   // Real-time Socket.io updates for live incident tracking
   useEffect(() => {
-    const socketUrl = import.meta.env.VITE_SOCKET_URL || 'http://localhost:5001';
+    const socketUrl = import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000';
     const socket = io(socketUrl, {
       transports: ['websocket', 'polling'],
     });
@@ -61,6 +61,10 @@ export default function MyIncidentsPage() {
       fetchMyIncidents();
     });
 
+    socket.on('new_incident_alert', () => {
+      fetchMyIncidents();
+    });
+
     return () => {
       socket.disconnect();
     };
@@ -68,7 +72,7 @@ export default function MyIncidentsPage() {
 
   const fetchMyIncidents = async () => {
     setLoading(true);
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
     try {
       let url = `${apiUrl}/incidents`;
@@ -217,8 +221,8 @@ export default function MyIncidentsPage() {
             <MapPin className="w-3 h-3 text-brand-teal shrink-0" />
             <span className="truncate">{row.location?.address || 'Coordinates pinned'}</span>
           </div>
-        );
-      },
+        </div>
+      ),
     },
     {
       title: 'Severity',

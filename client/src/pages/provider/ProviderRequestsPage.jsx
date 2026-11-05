@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import io from 'socket.io-client';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import PageHeader from '../../components/common/PageHeader';
@@ -8,6 +9,7 @@ import Button from '../../components/common/Button';
 import StatusBadge from '../../components/common/StatusBadge';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import ConfirmDialog from '../../components/common/ConfirmDialog';
+import Modal from '../../components/common/Modal';
 import {
   Inbox,
   MapPin,
@@ -70,6 +72,49 @@ export default function ProviderRequestsPage() {
     fetchRequests();
   }, [fetchRequests]);
 
+  // Real-time Socket.io listener for incoming dispatch requests
+  useEffect(() => {
+    const socketUrl = import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000';
+    const socket = io(socketUrl, {
+      transports: ['websocket', 'polling'],
+    });
+
+    socket.on('connect', () => {
+      socket.emit('join_role_channel', 'provider');
+      const providerId = user?.id || user?._id;
+      if (providerId) {
+        socket.emit('join_user_channel', providerId);
+      }
+    });
+
+    socket.on('new_assistance_request', (data) => {
+      const myId = String(user?.id || user?._id);
+      const reqProvId = data?.providerId?._id
+        ? String(data.providerId._id)
+        : (data?.providerId ? String(data.providerId) : null);
+
+      if (!reqProvId || reqProvId === myId) {
+        addToast(`New Dispatch Alert: ${data?.incidentId?.title || data?.serviceType || 'Emergency Assistance'}`, 'warning');
+        fetchRequests(true);
+      }
+    });
+
+    socket.on('assistance_status_changed', () => {
+      fetchRequests(true);
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, [user, fetchRequests, addToast]);
+
+  const [declineDialog, setDeclineDialog] = useState({
+    isOpen: false,
+    requestId: null,
+    reason: 'Outside current response zone',
+    customNotes: '',
+  });
+
   const promptResponse = (requestId, action) => {
     if (action === 'accept') {
       if (!isAvailable) {
@@ -85,19 +130,17 @@ export default function ProviderRequestsPage() {
           'Are you ready to dispatch your response unit to this incident? Traveler contact details and navigation routes will unlock immediately.',
       });
     } else {
-      setConfirmDialog({
+      setDeclineDialog({
         isOpen: true,
         requestId,
-        action: 'decline',
-        title: 'Decline Assistance Request',
-        message:
-          'Decline this request and release it back to the regional dispatch pool for other available units?',
+        reason: 'Outside current response zone',
+        customNotes: '',
       });
     }
   };
 
-  const handleConfirmResponse = async () => {
-    const { requestId, action } = confirmDialog;
+  const handleConfirmAccept = async () => {
+    const { requestId } = confirmDialog;
     setConfirmDialog({ isOpen: false, requestId: null, action: null, title: '', message: '' });
     setRespondingId(requestId);
 
@@ -108,19 +151,14 @@ export default function ProviderRequestsPage() {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ action }),
+        body: JSON.stringify({ action: 'accept' }),
       });
 
       const data = await res.json();
 
       if (res.ok && data.success) {
-        if (action === 'accept') {
-          addToast('Dispatch accepted! Job moved to Active Jobs.', 'success');
-          navigate('/provider/jobs');
-        } else {
-          addToast('Dispatch request declined.', 'info');
-          fetchRequests(true);
-        }
+        addToast('Dispatch accepted! Job moved to Active Jobs.', 'success');
+        navigate('/provider/jobs');
       } else {
         if (res.status === 409) {
           addToast('Dispatch Conflict: This request was just claimed by another provider unit.', 'error');
@@ -131,6 +169,38 @@ export default function ProviderRequestsPage() {
       }
     } catch {
       addToast('Network error during dispatch response.', 'error');
+    } finally {
+      setRespondingId(null);
+    }
+  };
+
+  const handleConfirmDecline = async () => {
+    const { requestId, reason, customNotes } = declineDialog;
+    const finalReason = customNotes?.trim() ? `${reason}: ${customNotes.trim()}` : reason;
+    setDeclineDialog({ isOpen: false, requestId: null, reason: 'Outside current response zone', customNotes: '' });
+    setRespondingId(requestId);
+
+    try {
+      const res = await fetch(`${apiUrl}/assistance-requests/${requestId}/respond`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ action: 'decline', reason: finalReason }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        addToast('Dispatch request declined. Incident returned to admin triage.', 'info');
+        fetchRequests(true);
+      } else {
+        addToast(data.message || 'Unable to decline request.', 'error');
+        fetchRequests(true);
+      }
+    } catch {
+      addToast('Network error during decline response.', 'error');
     } finally {
       setRespondingId(null);
     }
@@ -264,14 +334,17 @@ export default function ProviderRequestsPage() {
                       {req.incidentId.category}
                     </span>
                   )}
-                  {req.distanceKm && (
+                  {req.incidentId?.severity && (
+                    <StatusBadge status={req.incidentId.severity} type="severity" size="sm" />
+                  )}
+                  {req.distanceKm !== null && req.distanceKm !== undefined && (
                     <span className="text-xs font-extrabold text-brand-teal flex items-center gap-1">
                       <Compass className="w-3.5 h-3.5" />
                       {req.distanceKm} km from base
                     </span>
                   )}
-                  <span className="text-xs font-mono text-slate-400">
-                    Ref #{req._id.substring(req._id.length - 8).toUpperCase()}
+                  <span className="text-xs font-mono font-bold text-brand-navy px-2 py-0.5 rounded bg-slate-100 border border-slate-200">
+                    {req.incidentId?.incidentReference || req.incidentId?.referenceNumber || req.incidentId?.reference || `Ref #${req._id.slice(-8).toUpperCase()}`}
                   </span>
                 </div>
 
@@ -280,13 +353,13 @@ export default function ProviderRequestsPage() {
                 </h3>
 
                 <p className="text-xs text-slate-600 leading-relaxed max-w-2xl">
-                  {req.dispatchNotes || req.incidentId?.description || 'Assistance requested by traveler in distress.'}
+                  {req.incidentId?.description || req.dispatchNotes || 'Assistance requested by traveler in distress.'}
                 </p>
 
                 <div className="flex flex-wrap items-center gap-4 text-xs text-slate-500 pt-1">
                   <span className="flex items-center gap-1.5 text-slate-600">
                     <MapPin className="w-3.5 h-3.5 text-brand-teal shrink-0" />
-                    <span>{req.location?.address || 'GPS Coordinates Provided'}</span>
+                    <span>{req.location?.address || req.incidentId?.location?.address || 'GPS Coordinates Provided'}</span>
                   </span>
                   <span className="flex items-center gap-1.5 text-slate-400">
                     <Clock className="w-3.5 h-3.5" />
@@ -326,17 +399,78 @@ export default function ProviderRequestsPage() {
         )}
       </div>
 
+      {/* Accept Dispatch Confirmation Dialog */}
       <ConfirmDialog
         isOpen={confirmDialog.isOpen}
         title={confirmDialog.title}
         message={confirmDialog.message}
-        confirmText={confirmDialog.action === 'accept' ? 'Claim Dispatch' : 'Decline'}
-        confirmVariant={confirmDialog.action === 'accept' ? 'primary' : 'danger'}
-        onConfirm={handleConfirmResponse}
+        confirmText="Claim & Dispatch"
+        confirmVariant="primary"
+        onConfirm={handleConfirmAccept}
         onCancel={() =>
           setConfirmDialog({ isOpen: false, requestId: null, action: null, title: '', message: '' })
         }
       />
+
+      {/* Decline Dialog with Reason Selection */}
+      <Modal
+        isOpen={declineDialog.isOpen}
+        onClose={() => setDeclineDialog({ isOpen: false, requestId: null, reason: 'Outside current response zone', customNotes: '' })}
+        title="Decline Assistance Request"
+        subtitle="Specify the operational reason for declining this emergency dispatch"
+        maxWidth="max-w-md"
+      >
+        <div className="p-6 space-y-4">
+          <div>
+            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+              Decline Reason
+            </label>
+            <select
+              value={declineDialog.reason}
+              onChange={(e) => setDeclineDialog({ ...declineDialog, reason: e.target.value })}
+              className="w-full text-xs py-2 px-3 rounded-xl border border-slate-200 bg-white text-slate-700 font-semibold focus:outline-none focus:border-brand-teal"
+            >
+              <option value="Outside current response zone">Outside current response zone</option>
+              <option value="Response unit currently committed to another emergency">Unit currently committed to another emergency</option>
+              <option value="Specialized equipment / vehicle unavailable">Specialized equipment / vehicle unavailable</option>
+              <option value="Technical capacity exceeded">Technical capacity exceeded</option>
+              <option value="Adverse weather / route hazard">Adverse weather / route hazard</option>
+              <option value="Other operational reason">Other operational reason</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+              Additional Dispatch Notes (Optional)
+            </label>
+            <textarea
+              rows={3}
+              placeholder="Provide brief context for emergency coordination..."
+              value={declineDialog.customNotes}
+              onChange={(e) => setDeclineDialog({ ...declineDialog, customNotes: e.target.value })}
+              className="w-full text-xs p-3 rounded-xl border border-slate-200 focus:outline-none focus:border-brand-teal"
+            />
+          </div>
+
+          <div className="flex items-center justify-end gap-3 pt-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setDeclineDialog({ isOpen: false, requestId: null, reason: 'Outside current response zone', customNotes: '' })}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="emergencyStatic"
+              size="sm"
+              loading={respondingId === declineDialog.requestId}
+              onClick={handleConfirmDecline}
+            >
+              Confirm Decline
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }
