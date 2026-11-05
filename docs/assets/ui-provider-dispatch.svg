@@ -1,0 +1,177 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 680" width="100%" height="100%">
+  <defs>
+    <filter id="shadow4" x="-10%" y="-5%" width="120%" height="115%">
+      <feDropShadow dx="0" dy="18" stdDeviation="22" flood-color="#0F172A" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+
+  <rect width="1100" height="680" fill="#0E1726" rx="20"/>
+
+  <g transform="translate(30, 25)" filter="url(#shadow4)">
+    <rect width="1040" height="630" rx="16" fill="#F8FAFC"/>
+
+    <!-- Window Title Bar -->
+    <path d="M0 16 Q0 0 16 0 L1024 0 Q1040 0 1040 16 L1040 48 L0 48 Z" fill="#10243A"/>
+    <circle cx="24" cy="24" r="6" fill="#EF4444"/>
+    <circle cx="44" cy="24" r="6" fill="#F59E0B"/>
+    <circle cx="64" cy="24" r="6" fill="#10B981"/>
+    <rect x="250" y="12" width="540" height="24" rx="6" fill="#1E293B"/>
+    <text x="520" y="28" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" fill="#94A3B8" text-anchor="middle">safepassage.org/provider/dashboard — Assistance Dispatch &amp; Operations Command</text>
+
+    <!-- Top Status Bar & Duty Switcher -->
+    <g transform="translate(24, 60)">
+      <div style="display: flex;">
+        <text x="0" y="24" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="22" font-weight="800" fill="#10243A">Service Provider Dispatch Terminal</text>
+        <text x="0" y="44" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" fill="#64748B">Fleet: Apex Emergency Services Ltd • Base: Colombo Port City Station</text>
+      </div>
+
+      <!-- Duty Status Pill Toggle -->
+      <g transform="translate(800, 8)">
+        <rect width="190" height="38" rx="19" fill="#F0FDF4" stroke="#86EFAC" stroke-width="1.5"/>
+        <circle cx="20" cy="19" r="6" fill="#22C55E"/>
+        <text x="36" y="24" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" font-weight="700" fill="#15803D">ON DUTY (RECEIVING)</text>
+      </g>
+    </g>
+
+    <!-- 4 KPI Cards -->
+    <g transform="translate(24, 120)">
+      <!-- KPI 1: New Requests -->
+      <g transform="translate(0, 0)">
+        <rect width="236" height="80" rx="10" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1"/>
+        <text x="18" y="26" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="700" fill="#64748B">NEW PENDING REQUESTS</text>
+        <text x="18" y="58" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="28" font-weight="800" fill="#EF4444">3</text>
+        <rect x="175" y="18" width="44" height="44" rx="8" fill="#FEE2E2"/>
+        <text x="197" y="45" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="18" text-anchor="middle">🚨</text>
+      </g>
+
+      <!-- KPI 2: Active Missions -->
+      <g transform="translate(252, 0)">
+        <rect width="236" height="80" rx="10" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1"/>
+        <text x="18" y="26" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="700" fill="#64748B">ACTIVE MISSIONS</text>
+        <text x="18" y="58" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="28" font-weight="800" fill="#14B8A6">1</text>
+        <rect x="175" y="18" width="44" height="44" rx="8" fill="#F0FDFA"/>
+        <text x="197" y="45" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="18" text-anchor="middle">🚑</text>
+      </g>
+
+      <!-- KPI 3: Completed Today -->
+      <g transform="translate(504, 0)">
+        <rect width="236" height="80" rx="10" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1"/>
+        <text x="18" y="26" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="700" fill="#64748B">COMPLETED TODAY</text>
+        <text x="18" y="58" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="28" font-weight="800" fill="#10243A">8</text>
+        <rect x="175" y="18" width="44" height="44" rx="8" fill="#F1F5F9"/>
+        <text x="197" y="45" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="18" text-anchor="middle">✅</text>
+      </g>
+
+      <!-- KPI 4: Avg Response SLA -->
+      <g transform="translate(756, 0)">
+        <rect width="236" height="80" rx="10" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1"/>
+        <text x="18" y="26" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="700" fill="#64748B">AVG RESPONSE SLA</text>
+        <text x="18" y="58" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="28" font-weight="800" fill="#10B981">4.2m</text>
+        <rect x="175" y="18" width="44" height="44" rx="8" fill="#DCFCE7"/>
+        <text x="197" y="45" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="18" text-anchor="middle">⚡</text>
+      </g>
+    </g>
+
+    <!-- Split Area: Incoming Dispatches vs Active Job Console -->
+    <g transform="translate(24, 215)">
+      <!-- Left Panel: Incoming Dispatches Queue -->
+      <g transform="translate(0, 0)">
+        <rect width="530" height="395" rx="12" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1"/>
+        <text x="20" y="28" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="13" font-weight="700" fill="#1E293B">INCOMING EMERGENCY DISPATCH QUEUE</text>
+        
+        <!-- Privacy Protocol Badge -->
+        <g transform="translate(20, 38)">
+          <rect width="490" height="26" rx="6" fill="#F1F5F9"/>
+          <text x="12" y="17" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10.5" fill="#475569">🔒 Privacy Shield: Full traveler identity decrypts upon atomic mission claim.</text>
+        </g>
+
+        <!-- Dispatch Item 1: High Priority -->
+        <g transform="translate(20, 76)">
+          <rect width="490" height="135" rx="10" fill="#FEF2F2" stroke="#FCA5A5" stroke-width="1.5"/>
+          <rect x="14" y="14" width="78" height="20" rx="4" fill="#EF4444"/>
+          <text x="53" y="28" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10" font-weight="700" fill="#FFFFFF" text-anchor="middle">CRITICAL</text>
+          
+          <rect x="98" y="14" width="85" height="20" rx="4" fill="#FFFFFF"/>
+          <text x="140" y="28" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10.5" font-weight="700" fill="#991B1B" text-anchor="middle">3.2 km away</text>
+
+          <text x="14" y="54" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="14" font-weight="800" fill="#10243A">Severe Road Traffic Collision</text>
+          <text x="14" y="72" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11.5" fill="#64748B">Kollupitiya Junction, Galle Road • Vehicle rollover with minor injuries</text>
+
+          <!-- Action Claim Button -->
+          <g transform="translate(14, 90)">
+            <rect width="210" height="34" rx="8" fill="#10243A"/>
+            <text x="105" y="22" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11.5" font-weight="700" fill="#FFFFFF" text-anchor="middle">⚡ Claim Mission (Atomic Lock)</text>
+
+            <rect x="230" y="0" width="110" height="34" rx="8" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1"/>
+            <text x="285" y="22" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11.5" font-weight="600" fill="#475569" text-anchor="middle">Inspect</text>
+          </g>
+        </g>
+
+        <!-- Dispatch Item 2: Medium Roadside -->
+        <g transform="translate(20, 224)">
+          <rect width="490" height="135" rx="10" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="1"/>
+          <rect x="14" y="14" width="95" height="20" rx="4" fill="#FEF3C7"/>
+          <text x="61" y="28" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10" font-weight="700" fill="#B45309" text-anchor="middle">MEDIUM • TOW</text>
+
+          <text x="14" y="54" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="14" font-weight="700" fill="#10243A">Engine Seizure &amp; Transmission Failure</text>
+          <text x="14" y="72" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11.5" fill="#64748B">Baseline Road, Dematagoda • 4.9 km away • Requires Flatbed Tow</text>
+
+          <g transform="translate(14, 90)">
+            <rect width="210" height="34" rx="8" fill="#14B8A6"/>
+            <text x="105" y="22" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11.5" font-weight="700" fill="#FFFFFF" text-anchor="middle">⚡ Claim Mission</text>
+          </g>
+        </g>
+      </g>
+
+      <!-- Right Panel: Currently Active Mission Controls -->
+      <g transform="translate(550, 0)">
+        <rect width="442" height="395" rx="12" fill="#FFFFFF" stroke="#14B8A6" stroke-width="2"/>
+        <rect x="0" y="0" width="442" height="6" fill="#14B8A6"/>
+        
+        <text x="20" y="28" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="13" font-weight="700" fill="#0F766E">CURRENT ACTIVE MISSION (#INC-8942)</text>
+        
+        <!-- Mission Info -->
+        <g transform="translate(20, 42)">
+          <text x="0" y="16" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="15" font-weight="800" fill="#10243A">Medical Trauma Assistance</text>
+          <text x="0" y="34" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11.5" fill="#64748B">Traveler: Alex Jayasuriya • Phone: +94 77 123 4567</text>
+          <text x="0" y="50" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11.5" fill="#0F766E" font-weight="600">Location: Galle Face Green Promenade (1.2 km)</text>
+        </g>
+
+        <!-- Milestone Status Controller -->
+        <g transform="translate(20, 115)">
+          <text x="0" y="14" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="700" fill="#475569">OPERATIONAL MILESTONE ADVANCE</text>
+
+          <!-- Buttons -->
+          <g transform="translate(0, 24)">
+            <rect width="190" height="38" rx="8" fill="#10243A"/>
+            <text x="95" y="24" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" font-weight="700" fill="#FFFFFF" text-anchor="middle">✓ Mark Arrived On Scene</text>
+
+            <rect x="202" y="0" width="190" height="38" rx="8" fill="#F1F5F9" stroke="#E2E8F0" stroke-width="1"/>
+            <text x="297" y="24" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" font-weight="600" fill="#475569" text-anchor="middle">Set In Progress</text>
+          </g>
+
+          <g transform="translate(0, 70)">
+            <rect width="392" height="42" rx="8" fill="#22C55E"/>
+            <text x="196" y="26" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="13" font-weight="800" fill="#FFFFFF" text-anchor="middle">🏁 Finalize &amp; Mark Resolved</text>
+          </g>
+        </g>
+
+        <!-- Quick Communicator -->
+        <g transform="translate(20, 260)">
+          <rect width="392" height="110" rx="10" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="1"/>
+          <text x="16" y="22" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11.5" font-weight="700" fill="#1E293B">DISPATCH TOOLS &amp; NAVIGATION</text>
+          
+          <g transform="translate(16, 36)">
+            <rect width="170" height="34" rx="6" fill="#10243A"/>
+            <text x="85" y="22" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="700" fill="#FFFFFF" text-anchor="middle">📞 Call Traveler Directly</text>
+
+            <rect x="180" y="0" width="170" height="34" rx="6" fill="#14B8A6"/>
+            <text x="265" y="22" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="700" fill="#FFFFFF" text-anchor="middle">🗺️ Turn-by-Turn GPS</text>
+          </g>
+          <text x="16" y="94" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10.5" fill="#64748B">Synchronized with Member 3 CaseLog audit logs.</text>
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>
+
