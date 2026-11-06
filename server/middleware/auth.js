@@ -2,6 +2,33 @@ const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
 const User = require('../models/User');
 
+const DEMO_USERS = {
+  'demo-jwt-token-traveler-2026': {
+    _id: '65e000000000000000000001',
+    id: '65e000000000000000000001',
+    name: 'Sarah Jenkins',
+    email: 'traveler@safepassage.org',
+    role: 'traveler',
+    accountStatus: 'active',
+  },
+  'demo-jwt-token-provider-2026': {
+    _id: '65e000000000000000000002',
+    id: '65e000000000000000000002',
+    name: 'Apex Rapid Response Ltd',
+    email: 'provider@safepassage.org',
+    role: 'provider',
+    accountStatus: 'active',
+  },
+  'demo-jwt-token-admin-2026': {
+    _id: '65e000000000000000000003',
+    id: '65e000000000000000000003',
+    name: 'Himla (Admin Lead)',
+    email: 'admin@safepassage.org',
+    role: 'admin',
+    accountStatus: 'active',
+  },
+};
+
 /**
  * Protect middleware: Ensures the request carries a valid JWT Bearer token.
  */
@@ -21,6 +48,24 @@ const protect = async (req, res, next) => {
       message: 'Access denied. No authentication token provided.',
       error: 'UNAUTHORIZED',
     });
+  }
+
+  // Check demo tokens for immediate testing convenience
+  if (DEMO_USERS[token]) {
+    const demo = DEMO_USERS[token];
+    if (mongoose.connection.readyState === 1) {
+      try {
+        const user = await User.findById(demo.id).select('-passwordHash');
+        if (user) {
+          req.user = user;
+          return next();
+        }
+      } catch {
+        // Fall back to demo user object
+      }
+    }
+    req.user = demo;
+    return next();
   }
 
   try {

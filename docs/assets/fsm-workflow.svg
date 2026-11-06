@@ -1,0 +1,124 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 360" width="100%" height="100%">
+  <defs>
+    <linearGradient id="fsmBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0A1325"/>
+      <stop offset="100%" stop-color="#10243A"/>
+    </linearGradient>
+    <filter id="fsmShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#000000" flood-opacity="0.3"/>
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 9 5 L 0 9 z" fill="#14B8A6"/>
+    </marker>
+    <marker id="arrowRed" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 9 5 L 0 9 z" fill="#EF4444"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1100" height="360" rx="16" fill="url(#fsmBg)"/>
+
+  <!-- Title & Subtitle -->
+  <g transform="translate(35, 30)">
+    <rect width="170" height="22" rx="4" fill="#14B8A6" fill-opacity="0.15"/>
+    <text x="8" y="15" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10.5" font-weight="700" fill="#2DD4BF" letter-spacing="1">DETERMINISTIC FSM ENGINE</text>
+    <text x="0" y="44" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="20" font-weight="800" fill="#FFFFFF">Emergency Case Lifecycle State Machine</text>
+    <text x="0" y="62" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" fill="#94A3B8">Member 3 (J.K.S. Jayasundara) — Illegal transitions rejected with HTTP 400 Bad Request</text>
+  </g>
+
+  <!-- FSM Linear Progression Nodes -->
+  <g transform="translate(35, 125)">
+    <!-- Node 1: Submitted -->
+    <g transform="translate(0, 0)" filter="url(#fsmShadow)">
+      <rect width="135" height="70" rx="12" fill="#1E293B" stroke="#64748B" stroke-width="2"/>
+      <circle cx="20" cy="24" r="5" fill="#94A3B8"/>
+      <text x="32" y="28" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" font-weight="700" fill="#FFFFFF">Submitted</text>
+      <text x="14" y="48" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="9.5" fill="#94A3B8">Distress Logged</text>
+      <text x="14" y="60" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="9" fill="#64748B">Traveler / Public</text>
+    </g>
+
+    <!-- Transition Arrow 1 -> 2 -->
+    <path d="M 135 35 L 180 35" stroke="#14B8A6" stroke-width="2.5" marker-end="url(#arrow)"/>
+    <text x="157" y="26" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="9" font-weight="600" fill="#2DD4BF" text-anchor="middle">Triage</text>
+
+    <!-- Node 2: Under Review -->
+    <g transform="translate(185, 0)" filter="url(#fsmShadow)">
+      <rect width="140" height="70" rx="12" fill="#1E293B" stroke="#F59E0B" stroke-width="2"/>
+      <circle cx="20" cy="24" r="5" fill="#F59E0B"/>
+      <text x="32" y="28" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" font-weight="700" fill="#FFFFFF">Under Review</text>
+      <text x="14" y="48" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="9.5" fill="#FCD34D">GPS Verification</text>
+      <text x="14" y="60" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="9" fill="#64748B">Admin Dispatcher</text>
+    </g>
+
+    <!-- Transition Arrow 2 -> 3 -->
+    <path d="M 325 35 L 370 35" stroke="#14B8A6" stroke-width="2.5" marker-end="url(#arrow)"/>
+    <text x="347" y="26" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="9" font-weight="600" fill="#2DD4BF" text-anchor="middle">Match</text>
+
+    <!-- Node 3: Assigned -->
+    <g transform="translate(375, 0)" filter="url(#fsmShadow)">
+      <rect width="135" height="70" rx="12" fill="#1E293B" stroke="#3B82F6" stroke-width="2"/>
+      <circle cx="20" cy="24" r="5" fill="#3B82F6"/>
+      <text x="32" y="28" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" font-weight="700" fill="#FFFFFF">Assigned</text>
+      <text x="14" y="48" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="9.5" fill="#93C5FD">Unit Allocated</text>
+      <text x="14" y="60" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="9" fill="#64748B">Admin / Provider</text>
+    </g>
+
+    <!-- Transition Arrow 3 -> 4 -->
+    <path d="M 510 35 L 555 35" stroke="#14B8A6" stroke-width="2.5" marker-end="url(#arrow)"/>
+    <text x="532" y="26" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="9" font-weight="600" fill="#2DD4BF" text-anchor="middle">Accept</text>
+
+    <!-- Node 4: Dispatched -->
+    <g transform="translate(560, 0)" filter="url(#fsmShadow)">
+      <rect width="150" height="70" rx="12" fill="#1E293B" stroke="#14B8A6" stroke-width="2.5"/>
+      <circle cx="20" cy="24" r="5" fill="#14B8A6"/>
+      <text x="32" y="28" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" font-weight="700" fill="#FFFFFF">Dispatched</text>
+      <text x="14" y="48" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="9.5" fill="#2DD4BF">En Route to GPS</text>
+      <text x="14" y="60" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="9" fill="#64748B">Certified Provider</text>
+    </g>
+
+    <!-- Transition Arrow 4 -> 5 -->
+    <path d="M 710 35 L 755 35" stroke="#14B8A6" stroke-width="2.5" marker-end="url(#arrow)"/>
+    <text x="732" y="26" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="9" font-weight="600" fill="#2DD4BF" text-anchor="middle">On Scene</text>
+
+    <!-- Node 5: In Progress -->
+    <g transform="translate(760, 0)" filter="url(#fsmShadow)">
+      <rect width="135" height="70" rx="12" fill="#1E293B" stroke="#F97316" stroke-width="2"/>
+      <circle cx="20" cy="24" r="5" fill="#F97316"/>
+      <text x="32" y="28" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" font-weight="700" fill="#FFFFFF">In Progress</text>
+      <text x="14" y="48" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="9.5" fill="#FDBA74">Assistance Active</text>
+      <text x="14" y="60" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="9" fill="#64748B">Certified Provider</text>
+    </g>
+
+    <!-- Transition Arrow 5 -> 6 -->
+    <path d="M 895 35 L 940 35" stroke="#14B8A6" stroke-width="2.5" marker-end="url(#arrow)"/>
+    <text x="917" y="26" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="9" font-weight="600" fill="#2DD4BF" text-anchor="middle">Complete</text>
+
+    <!-- Node 6: Resolved (Terminal) -->
+    <g transform="translate(945, 0)" filter="url(#fsmShadow)">
+      <rect width="125" height="70" rx="12" fill="#064E3B" stroke="#10B981" stroke-width="2"/>
+      <circle cx="20" cy="24" r="5" fill="#10B981"/>
+      <text x="32" y="28" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" font-weight="800" fill="#FFFFFF">Resolved</text>
+      <text x="14" y="48" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="9.5" fill="#A7F3D0">TERMINAL STATE</text>
+      <text x="14" y="60" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="9" fill="#6EE7B7">Case Archived</text>
+    </g>
+  </g>
+
+  <!-- Cancellation Lower Branch (Terminal State) -->
+  <g transform="translate(35, 245)">
+    <!-- Red Terminal Node: Cancelled -->
+    <g transform="translate(440, 10)" filter="url(#fsmShadow)">
+      <rect width="180" height="55" rx="10" fill="#450A0A" stroke="#EF4444" stroke-width="2"/>
+      <circle cx="22" cy="27" r="6" fill="#EF4444"/>
+      <text x="36" y="24" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" font-weight="800" fill="#FFFFFF">Cancelled (Terminal)</text>
+      <text x="36" y="42" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10" fill="#FCA5A5">Reason Logged to CaseLog</text>
+    </g>
+
+    <!-- Cancellation Pathways from previous active states -->
+    <path d="M 67 -50 L 67 35 L 435 35" stroke="#EF4444" stroke-width="1.5" stroke-dasharray="4 4" fill="none" marker-end="url(#arrowRed)"/>
+    <path d="M 255 -50 L 255 18 L 435 25" stroke="#EF4444" stroke-width="1.5" stroke-dasharray="4 4" fill="none" marker-end="url(#arrowRed)"/>
+    <path d="M 827 -50 L 827 35 L 625 35" stroke="#EF4444" stroke-width="1.5" stroke-dasharray="4 4" fill="none" marker-end="url(#arrowRed)"/>
+
+    <text x="180" y="52" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10" fill="#F87171">Any active incident can be cancelled by Traveler or Admin prior to resolution</text>
+  </g>
+</svg>
+

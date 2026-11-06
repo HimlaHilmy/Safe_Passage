@@ -6,14 +6,26 @@ const ToastContext = createContext(null);
 export function ToastProvider({ children }) {
   const [toasts, setToasts] = useState([]);
 
-  const addToast = useCallback((message, type = 'info', duration = 4000) => {
-    const id = Date.now() + Math.random().toString(36).substr(2, 9);
-    setToasts((prev) => [...prev, { id, message, type }]);
+  const addToast = useCallback((messageOrObj, type = 'info', duration = 4000) => {
+    let message = messageOrObj;
+    let toastType = type;
+    let toastTitle = '';
+    let toastDuration = duration;
 
-    if (duration > 0) {
+    if (typeof messageOrObj === 'object' && messageOrObj !== null) {
+      message = messageOrObj.message || messageOrObj.title || JSON.stringify(messageOrObj);
+      toastType = messageOrObj.type || type;
+      toastTitle = messageOrObj.title || '';
+      if (messageOrObj.duration) toastDuration = messageOrObj.duration;
+    }
+
+    const id = Date.now() + Math.random().toString(36).substr(2, 9);
+    setToasts((prev) => [...prev, { id, message: String(message || ''), title: toastTitle, type: toastType }]);
+
+    if (toastDuration > 0) {
       setTimeout(() => {
         setToasts((prev) => prev.filter((t) => t.id !== id));
-      }, duration);
+      }, toastDuration);
     }
   }, []);
 
@@ -50,7 +62,10 @@ export function ToastProvider({ children }) {
             `}
           >
             {icons[toast.type] || icons.info}
-            <div className="flex-1 text-sm font-medium leading-snug">{toast.message}</div>
+            <div className="flex-1 text-sm leading-snug">
+              {toast.title && <div className="font-bold text-xs uppercase tracking-wider mb-0.5">{toast.title}</div>}
+              <div className="font-medium text-slate-700">{toast.message}</div>
+            </div>
             <button
               onClick={() => removeToast(toast.id)}
               className="text-slate-400 hover:text-slate-600 rounded-lg p-0.5"

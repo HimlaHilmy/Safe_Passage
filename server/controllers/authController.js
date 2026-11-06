@@ -1,5 +1,7 @@
 const jwt = require('jsonwebtoken');
+const mongoose = require('mongoose');
 const User = require('../models/User');
+const { isDbConnected } = require('../config/db');
 
 // Helper to generate signed JWT
 const generateToken = (user) => {
@@ -17,7 +19,7 @@ const generateToken = (user) => {
   );
 };
 
-// Seed/Demo accounts for immediate login during development/presentation
+// Demo accounts for rapid evaluation and testing
 const DEMO_USERS = {
   'traveler@safepassage.org': {
     _id: '65e000000000000000000001',
@@ -35,7 +37,8 @@ const DEMO_USERS = {
     phone: '+1 (555) 987-6543',
     accountStatus: 'active',
     providerDetails: {
-      serviceTypes: ['Roadside & Towing', 'Medical First Response'],
+      serviceTypes: ['Roadside Towing & Vehicle Repair', 'Emergency Paramedic Escort'],
+      licenseNumber: 'SRI-EMERG-2024-88',
       verified: true,
       currentLocation: { type: 'Point', coordinates: [79.8612, 6.9271] },
       isAvailable: true,
@@ -67,58 +70,57 @@ exports.register = async (req, res, next) => {
       });
     }
 
-    // Check if user exists in MongoDB
-    try {
-      const existingUser = await User.findOne({ email: email.toLowerCase() });
-      if (existingUser) {
-        return res.status(400).json({
-          success: false,
-          message: 'An account with this email address already exists.',
-        });
-      }
-
-      const user = await User.create({
-        name,
-        email: email.toLowerCase(),
-        passwordHash: password, // will be hashed by pre-save hook
-        role: role || 'traveler',
-        phone: phone || '',
-      });
-
-      const token = generateToken(user);
-
-      return res.status(201).json({
-        success: true,
-        message: 'User registered successfully.',
-        data: {
-          user: {
-            id: user._id,
-            name: user.name,
-            email: user.email,
-            role: user.role,
-            phone: user.phone,
-          },
-          token,
-        },
-      });
-    } catch {
-      // In-memory mock response if DB offline
-      const mockUser = {
-        _id: '65e' + Math.random().toString(16).substring(2, 23),
-        name,
-        email: email.toLowerCase(),
-        role: role || 'traveler',
-        phone: phone || '',
-      };
-      const token = generateToken(mockUser);
-
-      return res.status(201).json({
-        success: true,
-        message: 'Account created successfully (Development Fallback Mode).',
-        data: { user: mockUser, token },
+    if (!isDbConnected()) {
+      return res.status(503).json({
+        success: false,
+        message: 'Database service is currently unavailable. Please verify MongoDB connection.',
+        error: 'DATABASE_UNAVAILABLE',
       });
     }
+
+    const cleanEmail = email.toLowerCase().trim();
+    const existingUser = await User.findOne({ email: cleanEmail });
+    if (existingUser) {
+      return res.status(400).json({
+        success: false,
+        message: 'An account with this email address already exists in MongoDB.',
+      });
+    }
+
+    console.log(`[Auth] Creating new user ${cleanEmail} in MongoDB...`);
+    const user = await User.create({
+      name: name.trim(),
+      email: cleanEmail,
+      passwordHash: password, // will be hashed by User pre-save hook
+      role: role || 'traveler',
+      phone: phone ? phone.trim() : '',
+    });
+
+    const token = generateToken(user);
+    console.log(`[Auth] User registered successfully with ID: ${user._id}`);
+
+    return res.status(201).json({
+      success: true,
+      message: 'User registered successfully in MongoDB.',
+      data: {
+        user: {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          phone: user.phone,
+        },
+        token,
+      },
+    });
   } catch (err) {
+    console.error('[Auth Register Error]', err.message);
+    if (err.name === 'ValidationError') {
+      return res.status(400).json({
+        success: false,
+        message: 'Validation failed: ' + err.message,
+      });
+    }
     next(err);
   }
 };
@@ -141,47 +143,66 @@ exports.login = async (req, res, next) => {
 
     const cleanEmail = email.toLowerCase().trim();
 
-    // 1. Check DB first
-    try {
-      const user = await User.findOne({ email: cleanEmail }).select('+passwordHash');
-      if (user) {
-        const isMatch = await user.matchPassword(password);
-        if (isMatch) {
-          const token = generateToken(user);
-          return res.status(200).json({
-            success: true,
-            message: 'Logged in successfully.',
-            data: {
-              user: {
-                id: user._id,
-                name: user.name,
-                email: user.email,
-                role: user.role,
-                phone: user.phone,
-              },
-              token,
-            },
-          });
-        }
-      }
-    } catch {
-      // Continue to demo users check if DB offline
+    if (!isDbConnected()) {
+      return res.status(503).json({
+        success: false,
+        message: 'Database service is currently offline. Cannot authenticate.',
+        error: 'DATABASE_UNAVAILABLE',
+      });
     }
 
-    // 2. Demo User Fallback (For instant testing without prior manual registration)
+    // 1. Check MongoDB for existing account
+    let user = await User.findOne({ email: cleanEmail }).select('+passwordHash');
+
+    if (user) {
+      const isMatch = await user.matchPassword(password);
+      if (isMatch) {
+        const token = generateToken(user);
+        return res.status(200).json({
+          success: true,
+          message: 'Logged in successfully.',
+          data: {
+            user: {
+              id: user._id,
+              name: user.name,
+              email: user.email,
+              role: user.role,
+              phone: user.phone,
+            },
+            token,
+          },
+        });
+      }
+    }
+
+    // 2. Demo User Fallback: If user is one of the standard demo accounts, ensure seeded in MongoDB
     if (DEMO_USERS[cleanEmail]) {
-      const demoUser = DEMO_USERS[cleanEmail];
-      const token = generateToken(demoUser);
+      const demoData = DEMO_USERS[cleanEmail];
+      if (!user) {
+        console.log(`[Auth] Auto-provisioning demo account ${cleanEmail} into MongoDB...`);
+        user = await User.create({
+          _id: new mongoose.Types.ObjectId(demoData._id),
+          name: demoData.name,
+          email: demoData.email,
+          passwordHash: password, // Seed with entered password
+          role: demoData.role,
+          phone: demoData.phone,
+          accountStatus: demoData.accountStatus,
+          providerDetails: demoData.providerDetails || undefined,
+        });
+      }
+
+      const token = generateToken(user || demoData);
       return res.status(200).json({
         success: true,
         message: 'Authenticated successfully with demo credentials.',
         data: {
           user: {
-            id: demoUser._id,
-            name: demoUser.name,
-            email: demoUser.email,
-            role: demoUser.role,
-            phone: demoUser.phone,
+            id: user ? user._id : demoData._id,
+            name: user ? user.name : demoData.name,
+            email: user ? user.email : demoData.email,
+            role: user ? user.role : demoData.role,
+            phone: user ? user.phone : demoData.phone,
           },
           token,
         },
@@ -193,6 +214,7 @@ exports.login = async (req, res, next) => {
       message: 'Invalid credentials. Please verify your email and password.',
     });
   } catch (err) {
+    console.error('[Auth Login Error]', err.message);
     next(err);
   }
 };
