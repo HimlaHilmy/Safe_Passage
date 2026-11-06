@@ -3,7 +3,7 @@ const cors = require('cors');
 const morgan = require('morgan');
 const path = require('path');
 const errorHandler = require('./middleware/errorHandler');
-const { getDBStatus } = require('./config/db');
+const { connectDB, getDBStatus } = require('./config/db');
 const { corsOptions } = require('./config/cors');
 
 // Route imports
@@ -30,6 +30,16 @@ app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
 if (process.env.NODE_ENV !== 'test') {
   app.use(morgan('dev'));
 }
+
+// Ensure database connection is active for Vercel serverless invocations
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+  } catch (dbErr) {
+    console.error('[Vercel Serverless DB Connection Warning]', dbErr.message);
+  }
+  next();
+});
 
 // System Health & Diagnostics endpoint
 app.get('/api/health', (req, res) => {

@@ -1,12 +1,28 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "npm run build --prefix client",
-  "outputDirectory": "client/dist",
+  "services": {
+    "client": {
+      "root": "client",
+      "framework": "vite"
+    },
+    "safe-passage-backend": {
+      "root": "server",
+      "framework": "express",
+      "buildCommand": "npm install"
+    }
+  },
   "rewrites": [
     {
+      "source": "/api/(.*)",
+      "destination": {
+        "service": "safe-passage-backend"
+      }
+    },
+    {
       "source": "/(.*)",
-      "destination": "/index.html"
+      "destination": {
+        "service": "client"
+      }
     }
   ]
 }
-

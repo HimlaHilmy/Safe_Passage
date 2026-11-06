@@ -64,3 +64,5 @@ startServer();
 process.on('unhandledRejection', (err) => {
   console.error('[Process Error] Unhandled Rejection:', err);
 });
+
+module.exports = app;

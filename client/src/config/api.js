@@ -2,37 +2,38 @@
  * Safe Passage Centralized API & Socket.IO Configuration
  *
  * In local development: defaults to http://localhost:5000/api and http://localhost:5000
- * In production: reads VITE_API_URL and VITE_SOCKET_URL from environment variables
+ * In Vercel Services deployment (unified domain): defaults to /api and window.location.origin
+ * In custom deployment: reads VITE_API_URL and VITE_SOCKET_URL from environment variables
  */
 
 const rawApiUrl = (import.meta.env.VITE_API_URL || '').trim();
 const rawSocketUrl = (import.meta.env.VITE_SOCKET_URL || '').trim();
 
-// Base API URL (e.g. 'https://safe-passage-api.onrender.com/api' or 'http://localhost:5000/api')
+// In production on Vercel Services, relative '/api' routes directly to the backend service
+const defaultApi = (typeof window !== 'undefined' && !import.meta.env.DEV)
+  ? '/api'
+  : 'http://localhost:5000/api';
+
 const normalizedApi = rawApiUrl
   ? (rawApiUrl.endsWith('/api') ? rawApiUrl : `${rawApiUrl}/api`).replace(/\/+$/, '')
-  : 'http://localhost:5000/api';
+  : defaultApi;
 
 export const API_BASE_URL = normalizedApi;
 
-// Base Socket URL (e.g. 'https://safe-passage-api.onrender.com' or 'http://localhost:5000')
-// If VITE_SOCKET_URL is omitted, automatically derives from API_BASE_URL by removing /api
+// Base Socket URL (e.g. window.location.origin or http://localhost:5000)
+// If VITE_SOCKET_URL is omitted, automatically derives from API_BASE_URL or window.location.origin
 export const SOCKET_BASE_URL = rawSocketUrl
   ? rawSocketUrl.replace(/\/+$/, '')
-  : API_BASE_URL.replace(/\/api\/?$/, '');
+  : API_BASE_URL.startsWith('http')
+  ? API_BASE_URL.replace(/\/api\/?$/, '')
+  : (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:5000');
 
 export const getApiUrl = () => API_BASE_URL;
 export const getSocketUrl = () => SOCKET_BASE_URL;
 
-// Diagnostic warning in browser console if production build is missing live backend URL
+// Diagnostic log in browser console for deployment debugging
 if (typeof window !== 'undefined' && import.meta.env.PROD) {
-  if (!rawApiUrl || rawApiUrl.includes('localhost')) {
-    console.warn(
-      '[Safe Passage Config Warning] VITE_API_URL is missing or pointing to localhost in this production build.\n' +
-      'Please configure VITE_API_URL in your Vercel Project Settings (Settings -> Environment Variables) ' +
-      'to point to your live backend (e.g. https://your-backend.onrender.com/api).'
-    );
-  }
+  console.log(`[Safe Passage Config] API Base: ${API_BASE_URL} | Socket Base: ${SOCKET_BASE_URL}`);
 }
 
 export default {

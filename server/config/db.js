@@ -76,6 +76,10 @@ async function ensureDemoUsers() {
  * If the cloud URI is unreachable (e.g., Atlas IP whitelist block), attempts local MongoDB fallback.
  */
 const connectDB = async () => {
+  if (mongoose.connection && mongoose.connection.readyState === 1) {
+    return mongoose.connection;
+  }
+
   const configuredUri = process.env.MONGO_URI || process.env.MONGODB_URI;
   const dbName = process.env.DB_NAME || 'safe_passage';
 
