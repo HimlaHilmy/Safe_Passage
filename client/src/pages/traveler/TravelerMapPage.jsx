@@ -5,6 +5,7 @@ import ServiceCard from '../../components/services/ServiceCard';
 import PageHeader from '../../components/common/PageHeader';
 import Button from '../../components/common/Button';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
+import { API_BASE_URL } from '../../config/api';
 import {
   MapPin,
   Navigation,
@@ -160,7 +161,7 @@ export default function TravelerMapPage() {
   // Fetch Nearby Services
   const fetchServices = useCallback(async () => {
     setLoading(true);
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+    const apiUrl = API_BASE_URL;
     const [lat, lng] = center;
 
     try {

@@ -76,7 +76,7 @@ async function ensureDemoUsers() {
  * If the cloud URI is unreachable (e.g., Atlas IP whitelist block), attempts local MongoDB fallback.
  */
 const connectDB = async () => {
-  const configuredUri = process.env.MONGODB_URI || process.env.MONGO_URI;
+  const configuredUri = process.env.MONGO_URI || process.env.MONGODB_URI;
   const dbName = process.env.DB_NAME || 'safe_passage';
 
   const connectionCandidates = [];
@@ -85,9 +85,11 @@ const connectDB = async () => {
     const isAtlas = configuredUri.includes('.mongodb.net');
     connectionCandidates.push({
       uri: configuredUri,
-      label: isAtlas ? 'MongoDB Atlas Cloud Cluster' : 'Configured MongoDB URI',
-      timeout: isAtlas ? 8000 : 5000,
+      label: isAtlas ? 'MongoDB Atlas Cloud Cluster (MONGO_URI)' : 'Configured MongoDB URI (MONGO_URI)',
+      timeout: isAtlas ? 10000 : 5000,
     });
+  } else {
+    console.warn('[Database Notice] No MONGO_URI provided in environment variables.');
   }
 
   // Local fallback candidate

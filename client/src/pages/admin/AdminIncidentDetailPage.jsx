@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
+import { API_BASE_URL } from '../../config/api';
 import PageHeader from '../../components/common/PageHeader';
 import Card from '../../components/common/Card';
 import StatusBadge from '../../components/common/StatusBadge';
@@ -61,7 +62,7 @@ export default function AdminIncidentDetailPage() {
 
   const fetchIncidentAndProviders = async () => {
     setLoading(true);
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+    const apiUrl = API_BASE_URL;
 
     try {
       // 1. Fetch Incident by ID
@@ -98,7 +99,7 @@ export default function AdminIncidentDetailPage() {
   const handleSaveCase = async (e) => {
     e.preventDefault();
     setSaving(true);
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+    const apiUrl = API_BASE_URL;
 
     try {
       const payload = {

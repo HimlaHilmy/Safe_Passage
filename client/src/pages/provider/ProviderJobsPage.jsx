@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
+import { API_BASE_URL } from '../../config/api';
 import PageHeader from '../../components/common/PageHeader';
 import Card from '../../components/common/Card';
 import Button from '../../components/common/Button';
@@ -47,7 +48,7 @@ export default function ProviderJobsPage() {
     jobTitle: '',
   });
 
-  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+  const apiUrl = API_BASE_URL;
 
   const fetchJobs = useCallback(async (silent = false) => {
     if (!silent) setRefreshing(true);

@@ -8,6 +8,7 @@ import StatusBadge from '../../components/common/StatusBadge';
 import Button from '../../components/common/Button';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import Modal from '../../components/common/Modal';
+import { API_BASE_URL } from '../../config/api';
 import {
   History,
   Search,
@@ -38,7 +39,7 @@ export default function ProviderHistoryPage() {
   const [timeFilter, setTimeFilter] = useState('all');
   const [selectedJob, setSelectedJob] = useState(null);
 
-  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+  const apiUrl = API_BASE_URL;
 
   const fetchHistory = useCallback(async (silent = false) => {
     if (!silent) setRefreshing(true);

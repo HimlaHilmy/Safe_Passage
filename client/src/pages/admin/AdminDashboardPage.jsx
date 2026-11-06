@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import io from 'socket.io-client';
 import { useAuth } from '../../context/AuthContext';
+import { API_BASE_URL, SOCKET_BASE_URL } from '../../config/api';
 import PageHeader from '../../components/common/PageHeader';
 import Card from '../../components/common/Card';
 import Button from '../../components/common/Button';
@@ -66,8 +67,7 @@ export default function AdminDashboardPage() {
 
   // Real-time Socket.io listener to keep counts and live incident map updated
   useEffect(() => {
-    const socketUrl = import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000';
-    const socket = io(socketUrl, {
+    const socket = io(SOCKET_BASE_URL, {
       transports: ['websocket', 'polling'],
     });
 
@@ -89,7 +89,7 @@ export default function AdminDashboardPage() {
   }, []);
   const fetchDashboardData = async () => {
     setLoading(true);
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+    const apiUrl = API_BASE_URL;
 
     try {
       // 1. Fetch Executive Analytics Aggregations

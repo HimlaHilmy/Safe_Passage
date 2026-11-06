@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
+import { API_BASE_URL } from '../../config/api';
 import PageHeader from '../../components/common/PageHeader';
 import Card from '../../components/common/Card';
 import Table from '../../components/common/Table';
@@ -91,7 +92,7 @@ export default function AdminServicesPage() {
 
   const fetchServices = async () => {
     setLoading(true);
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+    const apiUrl = API_BASE_URL;
 
     const params = new URLSearchParams();
     params.append('page', currentPage);
@@ -160,7 +161,7 @@ export default function AdminServicesPage() {
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+    const apiUrl = API_BASE_URL;
 
     const payload = {
       name: formData.name,
@@ -227,7 +228,7 @@ export default function AdminServicesPage() {
 
   const handleConfirmDelete = async () => {
     if (!serviceToDelete) return;
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+    const apiUrl = API_BASE_URL;
 
     try {
       const res = await fetch(`${apiUrl}/admin/services/${serviceToDelete._id}`, {

@@ -38,8 +38,8 @@ function getCorsOriginChecker() {
       return callback(null, true);
     }
 
-    // 3. Automatically allow all Vercel deployment domains (*.vercel.app)
-    if (/^https:\/\/[a-zA-Z0-9_-]+\.vercel\.app$/.test(cleanOrigin)) {
+    // 3. Automatically allow all Vercel deployment and preview domains (*.vercel.app)
+    if (/^https:\/\/[a-zA-Z0-9_\-.]+\.vercel\.app$/.test(cleanOrigin)) {
       return callback(null, true);
     }
 

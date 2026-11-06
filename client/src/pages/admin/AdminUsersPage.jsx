@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
+import { API_BASE_URL } from '../../config/api';
 import PageHeader from '../../components/common/PageHeader';
 import Table from '../../components/common/Table';
 import Card from '../../components/common/Card';
@@ -63,7 +64,7 @@ export default function AdminUsersPage() {
 
   const fetchUsers = async () => {
     setLoading(true);
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+    const apiUrl = API_BASE_URL;
 
     const params = new URLSearchParams();
     params.append('page', currentPage);
@@ -111,7 +112,7 @@ export default function AdminUsersPage() {
   const handleConfirmToggleStatus = async () => {
     if (!targetUser) return;
     setProcessing(true);
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+    const apiUrl = API_BASE_URL;
     const nextStatus = targetUser.accountStatus === 'active' ? 'suspended' : 'active';
 
     try {
@@ -161,7 +162,7 @@ export default function AdminUsersPage() {
     e.preventDefault();
     if (!targetUser) return;
     setProcessing(true);
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+    const apiUrl = API_BASE_URL;
 
     try {
       const res = await fetch(`${apiUrl}/admin/users/${targetUser._id}/status`, {

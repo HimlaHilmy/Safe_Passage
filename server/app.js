@@ -4,6 +4,7 @@ const morgan = require('morgan');
 const path = require('path');
 const errorHandler = require('./middleware/errorHandler');
 const { getDBStatus } = require('./config/db');
+const { corsOptions } = require('./config/cors');
 
 // Route imports
 const authRoutes = require('./routes/authRoutes');
@@ -20,14 +21,8 @@ const app = express();
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-app.use(
-  cors({
-    origin: process.env.CLIENT_URL || 'http://localhost:5173',
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-  })
-);
+// CORS configuration supporting local dev and deployed Vercel domains
+app.use(cors(corsOptions));
 
 // Serve static uploaded files (fallback storage)
 app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));

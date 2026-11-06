@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import io from 'socket.io-client';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
+import { API_BASE_URL, SOCKET_BASE_URL } from '../../config/api';
 import PageHeader from '../../components/common/PageHeader';
 import Table from '../../components/common/Table';
 import StatusBadge from '../../components/common/StatusBadge';
@@ -47,8 +48,7 @@ export default function MyIncidentsPage() {
 
   // Real-time Socket.io updates for live incident tracking
   useEffect(() => {
-    const socketUrl = import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000';
-    const socket = io(socketUrl, {
+    const socket = io(SOCKET_BASE_URL, {
       transports: ['websocket', 'polling'],
     });
 
@@ -72,7 +72,7 @@ export default function MyIncidentsPage() {
 
   const fetchMyIncidents = async () => {
     setLoading(true);
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+    const apiUrl = API_BASE_URL;
 
     try {
       let url = `${apiUrl}/incidents`;

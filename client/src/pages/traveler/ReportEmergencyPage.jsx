@@ -6,6 +6,7 @@ import PageHeader from '../../components/common/PageHeader';
 import Card from '../../components/common/Card';
 import Input from '../../components/common/Input';
 import Button from '../../components/common/Button';
+import { API_BASE_URL } from '../../config/api';
 
 // Modular Reporting Feature Components
 import ReportingStepIndicator from '../../features/reporting/ReportingStepIndicator';
@@ -194,7 +195,7 @@ export default function ReportEmergencyPage() {
     setIsSubmitting(true);
     setSubmissionError(null);
 
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+    const apiUrl = API_BASE_URL;
 
     const payload = {
       category,
@@ -520,7 +521,7 @@ export default function ReportEmergencyPage() {
               images={images}
               onImagesChange={(newImgs) => setImages(newImgs)}
               token={token}
-              apiUrl={import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}
+              apiUrl={API_BASE_URL}
             />
 
             {/* Summary Review Card */}

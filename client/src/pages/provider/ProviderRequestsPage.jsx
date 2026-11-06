@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import io from 'socket.io-client';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
+import { API_BASE_URL, SOCKET_BASE_URL } from '../../config/api';
 import PageHeader from '../../components/common/PageHeader';
 import Card from '../../components/common/Card';
 import Button from '../../components/common/Button';
@@ -47,7 +48,7 @@ export default function ProviderRequestsPage() {
     message: '',
   });
 
-  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+  const apiUrl = API_BASE_URL;
   const isAvailable = user?.providerDetails?.isAvailable !== false;
 
   const fetchRequests = useCallback(async (silent = false) => {
@@ -74,8 +75,7 @@ export default function ProviderRequestsPage() {
 
   // Real-time Socket.io listener for incoming dispatch requests
   useEffect(() => {
-    const socketUrl = import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000';
-    const socket = io(socketUrl, {
+    const socket = io(SOCKET_BASE_URL, {
       transports: ['websocket', 'polling'],
     });
 

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { API_BASE_URL } from '../../config/api';
 import PageHeader from '../../components/common/PageHeader';
 import Table from '../../components/common/Table';
 import Card from '../../components/common/Card';
@@ -67,7 +68,7 @@ export default function AdminAuditLogsPage() {
 
   const fetchAuditLogs = async () => {
     setLoading(true);
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+    const apiUrl = API_BASE_URL;
 
     const params = new URLSearchParams();
     params.append('page', currentPage);

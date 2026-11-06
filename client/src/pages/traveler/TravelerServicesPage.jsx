@@ -8,6 +8,7 @@ import LoadingSpinner from '../../components/common/LoadingSpinner';
 import EmptyState from '../../components/common/EmptyState';
 import ErrorState from '../../components/common/ErrorState';
 import Button from '../../components/common/Button';
+import { API_BASE_URL } from '../../config/api';
 import {
   MapPin,
   Navigation,
@@ -315,7 +316,7 @@ export default function TravelerServicesPage() {
     setLoading(true);
     setError(null);
 
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+    const apiUrl = API_BASE_URL;
     const [lat, lng] = queryCenter;
 
     try {

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import io from 'socket.io-client';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
+import { API_BASE_URL, SOCKET_BASE_URL } from '../../config/api';
 import PageHeader from '../../components/common/PageHeader';
 import Table from '../../components/common/Table';
 import Card from '../../components/common/Card';
@@ -92,8 +93,7 @@ export default function AdminIncidentsPage() {
 
   // Real-time socket listener for admin channel
   useEffect(() => {
-    const socketUrl = import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000';
-    const socket = io(socketUrl, {
+    const socket = io(SOCKET_BASE_URL, {
       transports: ['websocket', 'polling'],
     });
 
@@ -116,7 +116,7 @@ export default function AdminIncidentsPage() {
   }, []);
 
   const fetchProviders = async () => {
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+    const apiUrl = API_BASE_URL;
     try {
       const res = await fetch(`${apiUrl}/admin/providers`, {
         headers: { Authorization: `Bearer ${token}` },
@@ -135,7 +135,7 @@ export default function AdminIncidentsPage() {
 
   const fetchIncidents = async () => {
     setLoading(true);
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+    const apiUrl = API_BASE_URL;
 
     try {
       const params = new URLSearchParams();
@@ -199,7 +199,7 @@ export default function AdminIncidentsPage() {
   };
 
   const handleExportCSV = async () => {
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+    const apiUrl = API_BASE_URL;
     const params = new URLSearchParams();
     if (selectedCategory) params.append('category', selectedCategory);
     if (selectedStatus) params.append('status', selectedStatus);
@@ -249,7 +249,7 @@ export default function AdminIncidentsPage() {
     if (!selectedIncident) return;
 
     setUpdating(true);
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+    const apiUrl = API_BASE_URL;
 
     try {
       const payload = {

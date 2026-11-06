@@ -5,6 +5,7 @@ import PageHeader from '../../components/common/PageHeader';
 import Card from '../../components/common/Card';
 import Button from '../../components/common/Button';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
+import { API_BASE_URL } from '../../config/api';
 import {
   ShieldCheck,
   User,
@@ -52,7 +53,7 @@ export default function ProviderProfilePage() {
   const [coordinates, setCoordinates] = useState([79.8612, 6.9271]); // [lng, lat]
   const [locatingGPS, setLocatingGPS] = useState(false);
 
-  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+  const apiUrl = API_BASE_URL;
 
   const fetchProfile = useCallback(async () => {
     try {

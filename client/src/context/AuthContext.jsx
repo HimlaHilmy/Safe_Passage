@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { API_BASE_URL } from '../config/api';
 
 const AuthContext = createContext(null);
 
@@ -59,7 +60,7 @@ export function AuthProvider({ children }) {
 
   const login = async (email, password) => {
     const cleanEmail = email.toLowerCase().trim();
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+    const apiUrl = API_BASE_URL;
 
     try {
       const response = await fetch(`${apiUrl}/auth/login`, {
@@ -98,7 +99,7 @@ export function AuthProvider({ children }) {
   };
 
   const register = async (userData) => {
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+    const apiUrl = API_BASE_URL;
     try {
       const response = await fetch(`${apiUrl}/auth/register`, {
         method: 'POST',

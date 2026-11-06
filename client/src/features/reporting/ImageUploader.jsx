@@ -10,6 +10,7 @@ import {
   FileText,
 } from 'lucide-react';
 import Button from '../../components/common/Button';
+import { API_BASE_URL } from '../../config/api';
 
 const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024; // 5MB limit
 const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
@@ -18,7 +19,7 @@ export default function ImageUploader({
   images = [],
   onImagesChange,
   token,
-  apiUrl = 'http://localhost:5000/api',
+  apiUrl = API_BASE_URL,
 }) {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState(null);

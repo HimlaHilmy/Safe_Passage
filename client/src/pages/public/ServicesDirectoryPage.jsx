@@ -4,6 +4,7 @@ import SafePassageMap from '../../components/maps/MapContainer';
 import SearchBar from '../../components/common/SearchBar';
 import FilterControls from '../../components/common/FilterControls';
 import Card from '../../components/common/Card';
+import { API_BASE_URL } from '../../config/api';
 import {
   MapPin,
   Shield,
@@ -65,7 +66,7 @@ export default function ServicesDirectoryPage() {
 
   const fetchServices = async () => {
     setLoading(true);
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+    const apiUrl = API_BASE_URL;
     try {
       let url = `${apiUrl}/services/nearby?lng=${activeCenter[1]}&lat=${activeCenter[0]}&radius=${selectedRadius}`;
       if (selectedCategory) {

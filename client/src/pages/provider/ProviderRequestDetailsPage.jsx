@@ -10,6 +10,7 @@ import LoadingSpinner from '../../components/common/LoadingSpinner';
 import ConfirmDialog from '../../components/common/ConfirmDialog';
 import Modal from '../../components/common/Modal';
 import SafePassageMap from '../../components/maps/MapContainer';
+import { API_BASE_URL } from '../../config/api';
 import {
   Inbox,
   MapPin,
@@ -44,7 +45,7 @@ export default function ProviderRequestDetailsPage() {
     message: '',
   });
 
-  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+  const apiUrl = API_BASE_URL;
   const isAvailable = user?.providerDetails?.isAvailable !== false;
 
   const fetchRequestDetails = useCallback(async () => {

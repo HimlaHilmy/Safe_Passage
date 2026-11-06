@@ -10,6 +10,7 @@ import CaseAuditTimeline from './CaseAuditTimeline';
 import IncidentAssignmentCard from './IncidentAssignmentCard';
 import IncidentLocationMapCard from './IncidentLocationMapCard';
 import ConfirmDialog from '../common/ConfirmDialog';
+import { API_BASE_URL } from '../../config/api';
 import {
   CheckCircle2,
   XCircle,
@@ -47,7 +48,7 @@ export default function SharedIncidentDetailsModal({
 
   const fetchIncidentAndLogs = async () => {
     setLoading(true);
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+    const apiUrl = API_BASE_URL;
 
     try {
       const [incRes, logRes] = await Promise.all([
@@ -77,7 +78,7 @@ export default function SharedIncidentDetailsModal({
 
   const handleStatusTransition = async (targetStatus) => {
     setIsUpdating(true);
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+    const apiUrl = API_BASE_URL;
 
     try {
       const res = await fetch(`${apiUrl}/incidents/${incidentId}/status`, {
@@ -113,7 +114,7 @@ export default function SharedIncidentDetailsModal({
     if (!newNoteInput.trim()) return;
 
     setIsUpdating(true);
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+    const apiUrl = API_BASE_URL;
 
     try {
       const res = await fetch(`${apiUrl}/incidents/${incidentId}/notes`, {

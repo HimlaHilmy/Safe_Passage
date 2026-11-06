@@ -8,6 +8,7 @@ import Button from '../../components/common/Button';
 import StatusBadge from '../../components/common/StatusBadge';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import SafePassageMap from '../../components/maps/MapContainer';
+import { API_BASE_URL } from '../../config/api';
 import {
   Navigation,
   MapPin,
@@ -40,7 +41,7 @@ export default function ProviderMapPage() {
   const [center, setCenter] = useState([defaultProviderCoords[1], defaultProviderCoords[0]]);
   const [zoom, setZoom] = useState(11);
 
-  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+  const apiUrl = API_BASE_URL;
 
   const fetchData = useCallback(async (silent = false) => {
     if (!silent) setRefreshing(true);

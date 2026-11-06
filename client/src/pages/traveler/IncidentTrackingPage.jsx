@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import io from 'socket.io-client';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
+import { API_BASE_URL, SOCKET_BASE_URL } from '../../config/api';
 import PageHeader from '../../components/common/PageHeader';
 import Card from '../../components/common/Card';
 import StatusBadge from '../../components/common/StatusBadge';
@@ -45,8 +46,7 @@ export default function IncidentTrackingPage() {
   // Real-time Socket.io Room Tracking
   useEffect(() => {
     if (!id) return;
-    const socketUrl = import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000';
-    const socket = io(socketUrl, {
+    const socket = io(SOCKET_BASE_URL, {
       transports: ['websocket', 'polling'],
     });
 
@@ -78,7 +78,7 @@ export default function IncidentTrackingPage() {
 
   const fetchIncidentDetails = async () => {
     setLoading(true);
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+    const apiUrl = API_BASE_URL;
 
     try {
       const [incRes, logRes] = await Promise.all([
@@ -177,7 +177,7 @@ export default function IncidentTrackingPage() {
 
   const handleAdvanceStatus = async (nextStatus) => {
     setIsUpdating(true);
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+    const apiUrl = API_BASE_URL;
 
     try {
       const res = await fetch(`${apiUrl}/incidents/${id}/status`, {
@@ -227,7 +227,7 @@ export default function IncidentTrackingPage() {
     if (!caseNote.trim()) return;
 
     setIsUpdating(true);
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+    const apiUrl = API_BASE_URL;
 
     try {
       const res = await fetch(`${apiUrl}/incidents/${id}/notes`, {
