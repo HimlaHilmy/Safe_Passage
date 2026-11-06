@@ -30,7 +30,7 @@ const CATEGORY_MAP = {
 const SEED_SERVICES = [
   // --- 1. HOSPITALS & MEDICAL FACILITIES ---
   {
-    _id: '65s000000000000000000001',
+    _id: '65f000000000000000000010',
     name: 'National Hospital Emergency Trauma Unit',
     type: 'Hospital & Medical',
     address: 'Regent Street, Colombo 10',
@@ -51,7 +51,7 @@ const SEED_SERVICES = [
     isDemonstration: false,
   },
   {
-    _id: '65s000000000000000000002',
+    _id: '65f000000000000000000002',
     name: 'Colombo South Teaching Hospital (Kalubowila)',
     type: 'Hospital & Medical',
     address: 'Kalubowila Road, Dehiwala-Mount Lavinia',
@@ -72,7 +72,7 @@ const SEED_SERVICES = [
     isDemonstration: false,
   },
   {
-    _id: '65s000000000000000000003',
+    _id: '65f000000000000000000003',
     name: 'Kandy General Teaching Hospital',
     type: 'Hospital & Medical',
     address: 'William Gopallawa Mawatha, Kandy',
@@ -93,7 +93,7 @@ const SEED_SERVICES = [
     isDemonstration: false,
   },
   {
-    _id: '65s000000000000000000004',
+    _id: '65f000000000000000000004',
     name: 'Karapitiya National Teaching Hospital',
     type: 'Hospital & Medical',
     address: 'Hirimbura Cross Road, Karapitiya, Galle',
@@ -114,7 +114,7 @@ const SEED_SERVICES = [
     isDemonstration: false,
   },
   {
-    _id: '65s000000000000000000005',
+    _id: '65f000000000000000000005',
     name: 'Negombo District General Hospital',
     type: 'Hospital & Medical',
     address: 'Colombo Road, Negombo (Near BIA Airport)',
@@ -137,7 +137,7 @@ const SEED_SERVICES = [
 
   // --- 2. POLICE STATIONS & TOURIST SECURITY ---
   {
-    _id: '65s000000000000000000010',
+    _id: '65f000000000000000000015',
     name: 'Central Tourist Police Division',
     type: 'Police Station',
     address: 'Chatham Street, Fort, Colombo 01',
@@ -158,7 +158,7 @@ const SEED_SERVICES = [
     isDemonstration: false,
   },
   {
-    _id: '65s000000000000000000011',
+    _id: '65f000000000000000000011',
     name: 'Wellawatte Police Station',
     type: 'Police Station',
     address: 'Galle Road, Colombo 06',
@@ -179,7 +179,7 @@ const SEED_SERVICES = [
     isDemonstration: false,
   },
   {
-    _id: '65s000000000000000000012',
+    _id: '65f000000000000000000012',
     name: 'Kandy Tourist Police Unit',
     type: 'Police Station',
     address: 'Dalada Veediya (Near Temple of the Tooth), Kandy',
@@ -200,7 +200,7 @@ const SEED_SERVICES = [
     isDemonstration: false,
   },
   {
-    _id: '65s000000000000000000013',
+    _id: '65f000000000000000000013',
     name: 'Galle Fort Tourist Police Unit',
     type: 'Police Station',
     address: 'Rampart Street, Galle Fort, Galle',
@@ -221,7 +221,7 @@ const SEED_SERVICES = [
     isDemonstration: false,
   },
   {
-    _id: '65s000000000000000000014',
+    _id: '65f000000000000000000014',
     name: 'Katunayake Airport Police Station',
     type: 'Police Station',
     address: 'Bandaranaike International Airport Corridor, Katunayake',
@@ -244,7 +244,7 @@ const SEED_SERVICES = [
 
   // --- 3. EMBASSIES & DIPLOMATIC MISSIONS ---
   {
-    _id: '65s000000000000000000020',
+    _id: '65f000000000000000000020',
     name: 'Embassy of the United States of America',
     type: 'Embassy & Consulate',
     address: '210 Galle Road, Kollupitiya, Colombo 03',
@@ -265,7 +265,7 @@ const SEED_SERVICES = [
     isDemonstration: false,
   },
   {
-    _id: '65s000000000000000000021',
+    _id: '65f000000000000000000021',
     name: 'High Commission of India',
     type: 'Embassy & Consulate',
     address: '36-38 Galle Road, Kollupitiya, Colombo 03',
@@ -286,7 +286,7 @@ const SEED_SERVICES = [
     isDemonstration: false,
   },
   {
-    _id: '65s000000000000000000022',
+    _id: '65f000000000000000000022',
     name: 'British High Commission Colombo',
     type: 'Embassy & Consulate',
     address: '389 Bauddhaloka Mawatha, Colombo 07',
@@ -307,7 +307,7 @@ const SEED_SERVICES = [
     isDemonstration: false,
   },
   {
-    _id: '65s000000000000000000023',
+    _id: '65f000000000000000000023',
     name: 'Australian High Commission Sri Lanka',
     type: 'Embassy & Consulate',
     address: '21 Gregory\'s Road, Colombo 07',
@@ -328,7 +328,7 @@ const SEED_SERVICES = [
     isDemonstration: false,
   },
   {
-    _id: '65s000000000000000000024',
+    _id: '65f000000000000000000024',
     name: 'Embassy of the People\'s Republic of China',
     type: 'Embassy & Consulate',
     address: '395 Bauddhaloka Mawatha, Colombo 07',
@@ -351,7 +351,7 @@ const SEED_SERVICES = [
 
   // --- 4. MECHANICS & AUTOMOTIVE REPAIR GARAGES ---
   {
-    _id: '65s000000000000000000030',
+    _id: '65f000000000000000000030',
     name: 'Auto Miraj Grand Express Repair & Diagnostics',
     type: 'Mechanic & Repair',
     address: 'Baseline Road, Dematagoda, Colombo 09',
@@ -372,7 +372,7 @@ const SEED_SERVICES = [
     isDemonstration: true,
   },
   {
-    _id: '65s000000000000000000031',
+    _id: '65f000000000000000000031',
     name: 'Carepoint Mechanical & Hybrid Care Center',
     type: 'Mechanic & Repair',
     address: 'Nawala Road, Nugegoda, Colombo Suburbs',
@@ -393,7 +393,7 @@ const SEED_SERVICES = [
     isDemonstration: true,
   },
   {
-    _id: '65s000000000000000000032',
+    _id: '65f000000000000000000032',
     name: 'Dimo 800 Express Auto Workshop',
     type: 'Mechanic & Repair',
     address: 'Negombo Road, Peliyagoda (Expressway Junction)',
@@ -414,7 +414,7 @@ const SEED_SERVICES = [
     isDemonstration: true,
   },
   {
-    _id: '65s000000000000000000033',
+    _id: '65f000000000000000000033',
     name: 'Kandy Express Auto Diagnostics & Garage',
     type: 'Mechanic & Repair',
     address: 'Katugastota Road, Kandy',
@@ -435,7 +435,7 @@ const SEED_SERVICES = [
     isDemonstration: true,
   },
   {
-    _id: '65s000000000000000000034',
+    _id: '65f000000000000000000034',
     name: 'Southern Auto Care & Breakdown Garage',
     type: 'Mechanic & Repair',
     address: 'Wakwella Road, Galle',
@@ -458,7 +458,7 @@ const SEED_SERVICES = [
 
   // --- 5. TOWING SERVICES & ROADSIDE RESCUE ---
   {
-    _id: '65s000000000000000000040',
+    _id: '65f000000000000000000040',
     name: 'Apex Highway Towing & 24/7 Road Rescue',
     type: 'Roadside & Towing',
     address: 'Southern Expressway Interchange, Kottawa',
@@ -479,7 +479,7 @@ const SEED_SERVICES = [
     isDemonstration: true,
   },
   {
-    _id: '65s000000000000000000041',
+    _id: '65f000000000000000000041',
     name: 'Metro Heavy Towing & Flatbed Recovery',
     type: 'Roadside & Towing',
     address: 'Biyagama Road, Kelaniya',
@@ -500,7 +500,7 @@ const SEED_SERVICES = [
     isDemonstration: true,
   },
   {
-    _id: '65s000000000000000000042',
+    _id: '65f000000000000000000042',
     name: 'Southern Expressway Quick Tow & Recovery',
     type: 'Roadside & Towing',
     address: 'Kurundugahahetekma Interchange (E01), Galle Corridor',
@@ -521,7 +521,7 @@ const SEED_SERVICES = [
     isDemonstration: true,
   },
   {
-    _id: '65s000000000000000000043',
+    _id: '65f000000000000000000043',
     name: 'Central Highland Recovery & Towing',
     type: 'Roadside & Towing',
     address: 'Peradeniya Junction, Kandy',
@@ -542,7 +542,7 @@ const SEED_SERVICES = [
     isDemonstration: true,
   },
   {
-    _id: '65s000000000000000000044',
+    _id: '65f000000000000000000044',
     name: 'Airport Corridor 24/7 Rapid Towing',
     type: 'Roadside & Towing',
     address: 'Minuwangoda Road, Katunayake',
@@ -565,7 +565,7 @@ const SEED_SERVICES = [
 
   // --- 6. FIRE & RESCUE ---
   {
-    _id: '65s000000000000000000050',
+    _id: '65f000000000000000000050',
     name: 'Metropolitan Fire & Rescue Command',
     type: 'Fire & Rescue',
     address: 'T.B. Jayah Mawatha, Colombo 10',
@@ -588,7 +588,7 @@ const SEED_SERVICES = [
 
   // --- 7. COAST GUARD & MARINE RESCUE ---
   {
-    _id: '65s000000000000000000060',
+    _id: '65f000000000000000000060',
     name: 'Coast Guard & Maritime Rescue Center',
     type: 'Coast Guard & Marine',
     address: 'Harbour Gate 4, Marine Drive, Colombo',
@@ -988,3 +988,4 @@ exports.seedEmergencyServices = async () => {
 };
 
 exports.SEED_SERVICES = SEED_SERVICES;
+
