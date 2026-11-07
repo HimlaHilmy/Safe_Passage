@@ -41,7 +41,7 @@ const STEPS = [
 export default function ReportEmergencyPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { user, token } = useAuth();
+  const { user, token, logout } = useAuth();
   const { addToast } = useToast();
 
   const [currentStep, setCurrentStep] = useState(1);
@@ -232,6 +232,10 @@ export default function ReportEmergencyPage() {
       if (res.ok && resData.success && resData.data) {
         addToast('Emergency report received and logged by server dispatch!', 'success');
         setSubmittedIncident(resData.data);
+      } else if (res.status === 401) {
+        const errorMsg = 'Your session has expired or authentication token is invalid. Please sign in again.';
+        addToast(errorMsg, 'error');
+        setSubmissionError(errorMsg);
       } else {
         const errorMsg = resData.message || resData.error || 'Server rejected incident submission';
         throw new Error(errorMsg);
@@ -298,12 +302,26 @@ export default function ReportEmergencyPage() {
 
       {/* Submission Error Banner */}
       {submissionError && (
-        <div className="p-4 rounded-2xl bg-red-50 border border-red-200 text-xs text-emergency-red flex items-start gap-2.5">
-          <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
-          <div>
-            <strong className="block font-bold">Submission Notice:</strong>
-            {submissionError}
+        <div className="p-4 rounded-2xl bg-red-50 border border-red-200 text-xs text-emergency-red flex items-center justify-between gap-2.5 animate-shake">
+          <div className="flex items-start gap-2.5">
+            <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
+            <div>
+              <strong className="block font-bold">Submission Notice:</strong>
+              {submissionError}
+            </div>
           </div>
+          {(submissionError.includes('token') || submissionError.includes('session') || submissionError.includes('expired')) && (
+            <button
+              type="button"
+              onClick={() => {
+                logout();
+                navigate('/login');
+              }}
+              className="shrink-0 px-3 py-1.5 bg-emergency-red hover:bg-red-700 text-white font-bold rounded-xl shadow-xs transition-colors"
+            >
+              Sign In Again
+            </button>
+          )}
         </div>
       )}
 

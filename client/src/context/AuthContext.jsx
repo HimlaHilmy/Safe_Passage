@@ -32,27 +32,31 @@ const DEMO_ACCOUNTS = {
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
-  const [token, setToken] = useState(localStorage.getItem('safe_passage_token') || null);
+  const [token, setToken] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Initialize from localStorage or default to demo traveler for seamless evaluation
+  // Initialize from localStorage ONLY if user previously logged in
+  // Do NOT automatically log in as Sarah Jenkins on initial load
   useEffect(() => {
     try {
       const savedUser = localStorage.getItem('safe_passage_user');
       const savedToken = localStorage.getItem('safe_passage_token');
 
-      if (savedUser && savedToken) {
+      // Purge legacy auto-login Sarah Jenkins demo token from previous versions
+      const isAutoDemo = savedToken === 'demo-jwt-token-traveler-2026';
+
+      if (savedUser && savedToken && !isAutoDemo) {
         setUser(JSON.parse(savedUser));
         setToken(savedToken);
       } else {
-        // Default to demo traveler for immediate demonstration convenience
-        setUser(DEMO_ACCOUNTS.traveler);
-        setToken(DEMO_ACCOUNTS.traveler.token);
-        localStorage.setItem('safe_passage_user', JSON.stringify(DEMO_ACCOUNTS.traveler));
-        localStorage.setItem('safe_passage_token', DEMO_ACCOUNTS.traveler.token);
+        localStorage.removeItem('safe_passage_user');
+        localStorage.removeItem('safe_passage_token');
+        setUser(null);
+        setToken(null);
       }
     } catch {
-      setUser(DEMO_ACCOUNTS.traveler);
+      setUser(null);
+      setToken(null);
     } finally {
       setLoading(false);
     }
