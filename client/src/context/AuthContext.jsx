@@ -1,73 +1,101 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { API_BASE_URL } from '../config/api';
 
 const AuthContext = createContext(null);
-
-const DEMO_ACCOUNTS = {
-  traveler: {
-    id: '65e000000000000000000001',
-    name: 'Sarah Jenkins',
-    email: 'traveler@safepassage.org',
-    role: 'traveler',
-    phone: '+1 (555) 234-5678',
-    token: 'demo-jwt-token-traveler-2026',
-  },
-  provider: {
-    id: '65e000000000000000000002',
-    name: 'Apex Rapid Response Ltd',
-    email: 'provider@safepassage.org',
-    role: 'provider',
-    phone: '+1 (555) 987-6543',
-    token: 'demo-jwt-token-provider-2026',
-  },
-  admin: {
-    id: '65e000000000000000000003',
-    name: 'Himla (Admin Lead)',
-    email: 'admin@safepassage.org',
-    role: 'admin',
-    phone: '+1 (555) 000-1122',
-    token: 'demo-jwt-token-admin-2026',
-  },
-};
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Initialize from localStorage ONLY if user previously logged in
-  // Do NOT automatically log in as Sarah Jenkins on initial load
-  useEffect(() => {
-    try {
-      const savedUser = localStorage.getItem('safe_passage_user');
-      const savedToken = localStorage.getItem('safe_passage_token');
-
-      // Purge legacy auto-login Sarah Jenkins demo token from previous versions
-      const isAutoDemo = savedToken === 'demo-jwt-token-traveler-2026';
-
-      if (savedUser && savedToken && !isAutoDemo) {
-        setUser(JSON.parse(savedUser));
-        setToken(savedToken);
-      } else {
-        localStorage.removeItem('safe_passage_user');
-        localStorage.removeItem('safe_passage_token');
-        setUser(null);
-        setToken(null);
-      }
-    } catch {
-      setUser(null);
-      setToken(null);
-    } finally {
-      setLoading(false);
-    }
+  // Helper to clear all authentication data
+  const clearSession = useCallback(() => {
+    localStorage.removeItem('safe_passage_user');
+    localStorage.removeItem('safe_passage_token');
+    sessionStorage.removeItem('safe_passage_user');
+    sessionStorage.removeItem('safe_passage_token');
+    setUser(null);
+    setToken(null);
   }, []);
+
+  // Initialize from storage and validate token with backend /api/auth/me
+  useEffect(() => {
+    const initializeAuth = async () => {
+      try {
+        const savedToken =
+          localStorage.getItem('safe_passage_token') ||
+          sessionStorage.getItem('safe_passage_token');
+
+        // Discard any legacy demo or mock tokens
+        if (
+          !savedToken ||
+          savedToken === 'demo-jwt-token-traveler-2026' ||
+          savedToken === 'demo-jwt-token-provider-2026' ||
+          savedToken === 'demo-jwt-token-admin-2026' ||
+          savedToken.startsWith('mock-')
+        ) {
+          clearSession();
+          setLoading(false);
+          return;
+        }
+
+        // Validate the saved token with backend before treating as authenticated
+        try {
+          const res = await fetch(`${API_BASE_URL}/auth/me`, {
+            headers: {
+              Authorization: `Bearer ${savedToken}`,
+            },
+          });
+
+          if (res.ok) {
+            const resData = await res.json();
+            if (resData.success && resData.data) {
+              const verifiedUser = {
+                id: resData.data._id || resData.data.id,
+                name: resData.data.name,
+                email: resData.data.email,
+                role: resData.data.role,
+                phone: resData.data.phone || '',
+              };
+              setUser(verifiedUser);
+              setToken(savedToken);
+              localStorage.setItem('safe_passage_user', JSON.stringify(verifiedUser));
+            } else {
+              clearSession();
+            }
+          } else {
+            // Invalid, expired, or rejected token
+            console.warn('[Auth] Stored token rejected by server with status:', res.status);
+            clearSession();
+          }
+        } catch (netErr) {
+          console.warn('[Auth] Could not reach auth backend for session check:', netErr.message);
+          // If network is offline, keep previous session from storage if it exists
+          const savedUser =
+            localStorage.getItem('safe_passage_user') ||
+            sessionStorage.getItem('safe_passage_user');
+          if (savedUser) {
+            setUser(JSON.parse(savedUser));
+            setToken(savedToken);
+          } else {
+            clearSession();
+          }
+        }
+      } catch (err) {
+        console.error('[Auth Init Error]', err);
+        clearSession();
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    initializeAuth();
+  }, [clearSession]);
 
   const login = async (email, password) => {
     const cleanEmail = email.toLowerCase().trim();
-    const apiUrl = API_BASE_URL;
-
     try {
-      const response = await fetch(`${apiUrl}/auth/login`, {
+      const response = await fetch(`${API_BASE_URL}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: cleanEmail, password }),
@@ -84,33 +112,30 @@ export function AuthProvider({ children }) {
         localStorage.setItem('safe_passage_token', authToken);
         return { success: true, user: authUser };
       } else {
-        throw new Error(resData.message || 'Login failed');
+        return {
+          success: false,
+          message: resData.message || 'Invalid email or password.',
+        };
       }
     } catch (err) {
-      // Offline fallback: check if matches one of our demo emails
-      for (const key of Object.keys(DEMO_ACCOUNTS)) {
-        if (DEMO_ACCOUNTS[key].email === cleanEmail) {
-          const demo = DEMO_ACCOUNTS[key];
-          setUser(demo);
-          setToken(demo.token);
-          localStorage.setItem('safe_passage_user', JSON.stringify(demo));
-          localStorage.setItem('safe_passage_token', demo.token);
-          return { success: true, user: demo, fallback: true };
-        }
-      }
-      return { success: false, message: err.message };
+      console.error('[Login Network Error]', err);
+      return {
+        success: false,
+        message: 'Unable to connect to the authentication service. Please check your connection.',
+      };
     }
   };
 
   const register = async (userData) => {
-    const apiUrl = API_BASE_URL;
     try {
-      const response = await fetch(`${apiUrl}/auth/register`, {
+      const response = await fetch(`${API_BASE_URL}/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(userData),
       });
+
       const resData = await response.json();
+
       if (response.ok && resData.success) {
         const authUser = resData.data.user;
         const authToken = resData.data.token;
@@ -119,41 +144,34 @@ export function AuthProvider({ children }) {
         localStorage.setItem('safe_passage_user', JSON.stringify(authUser));
         localStorage.setItem('safe_passage_token', authToken);
         return { success: true, user: authUser };
+      } else {
+        return {
+          success: false,
+          message: resData.message || 'Registration failed.',
+        };
       }
-      throw new Error(resData.message || 'Registration failed');
     } catch (err) {
-      // Local fallback
-      const mockUser = {
-        id: '65e' + Math.random().toString(16).substring(2, 23),
-        name: userData.name,
-        email: userData.email,
-        role: userData.role || 'traveler',
-        phone: userData.phone || '',
-        token: 'mock-reg-token',
+      console.error('[Register Network Error]', err);
+      return {
+        success: false,
+        message: 'Unable to connect to the registration service. Please try again.',
       };
-      setUser(mockUser);
-      setToken(mockUser.token);
-      localStorage.setItem('safe_passage_user', JSON.stringify(mockUser));
-      localStorage.setItem('safe_passage_token', mockUser.token);
-      return { success: true, user: mockUser, fallback: true };
     }
   };
 
-  const logout = () => {
-    setUser(null);
-    setToken(null);
-    localStorage.removeItem('safe_passage_user');
-    localStorage.removeItem('safe_passage_token');
-  };
-
-  // Instant 1-click role switcher for university evaluations & testing
-  const switchDemoRole = (role) => {
-    if (DEMO_ACCOUNTS[role]) {
-      const target = DEMO_ACCOUNTS[role];
-      setUser(target);
-      setToken(target.token);
-      localStorage.setItem('safe_passage_user', JSON.stringify(target));
-      localStorage.setItem('safe_passage_token', target.token);
+  const logout = async () => {
+    try {
+      if (token) {
+        await fetch(`${API_BASE_URL}/auth/logout`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        }).catch(() => {});
+      }
+    } finally {
+      clearSession();
     }
   };
 
@@ -163,12 +181,11 @@ export function AuthProvider({ children }) {
         user,
         token,
         loading,
-        isAuthenticated: !!user,
+        isAuthenticated: !!user && !!token,
         role: user?.role || 'guest',
         login,
         register,
         logout,
-        switchDemoRole,
       }}
     >
       {children}

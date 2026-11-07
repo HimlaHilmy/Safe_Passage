@@ -4,7 +4,7 @@ import DashboardLayout from './DashboardLayout';
 
 export default function TravelerLayout() {
   return (
-    <ProtectedRoute allowedRoles={['traveler', 'admin']}>
+    <ProtectedRoute allowedRoles={['traveler']}>
       <DashboardLayout />
     </ProtectedRoute>
   );

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
@@ -18,9 +18,21 @@ export default function RegisterPage() {
     role: 'traveler',
   });
   const [isLoading, setIsLoading] = useState(false);
-  const { register } = useAuth();
+  const { register, user, isAuthenticated, loading } = useAuth();
   const { addToast } = useToast();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!loading && isAuthenticated && user) {
+      const target =
+        user.role === 'admin'
+          ? '/admin/dashboard'
+          : user.role === 'provider'
+          ? '/provider/dashboard'
+          : '/traveler/dashboard';
+      navigate(target, { replace: true });
+    }
+  }, [user, isAuthenticated, loading, navigate]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -45,8 +57,13 @@ export default function RegisterPage() {
 
     if (result.success) {
       addToast('Account created successfully! Welcome to Safe Passage.', 'success');
-      const target = formData.role === 'provider' ? '/provider' : '/traveler';
-      navigate(target);
+      const target =
+        formData.role === 'admin'
+          ? '/admin/dashboard'
+          : formData.role === 'provider'
+          ? '/provider/dashboard'
+          : '/traveler/dashboard';
+      navigate(target, { replace: true });
     } else {
       addToast(result.message || 'Registration failed', 'error');
     }

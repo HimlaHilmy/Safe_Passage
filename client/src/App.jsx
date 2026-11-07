@@ -9,7 +9,7 @@ import TravelerLayout from './layouts/TravelerLayout';
 import ProviderLayout from './layouts/ProviderLayout';
 import AdminLayout from './layouts/AdminLayout';
 
-// Public Pages matching UI Reference
+// Public Pages
 import HomePage from './pages/public/HomePage';
 import AboutPage from './pages/public/AboutPage';
 import ServicesDirectoryPage from './pages/public/ServicesDirectoryPage';
@@ -21,6 +21,7 @@ import LoginPage from './pages/auth/LoginPage';
 import RegisterPage from './pages/auth/RegisterPage';
 import ForgotPasswordPage from './pages/auth/ForgotPasswordPage';
 
+// Traveler Pages
 import TravelerOverviewPage from './pages/traveler/TravelerOverviewPage';
 import ReportEmergencyPage from './pages/traveler/ReportEmergencyPage';
 import TravelerServicesPage from './pages/traveler/TravelerServicesPage';
@@ -29,7 +30,7 @@ import MyIncidentsPage from './pages/traveler/MyIncidentsPage';
 import IncidentTrackingPage from './pages/traveler/IncidentTrackingPage';
 import RoadsidePage from './pages/traveler/RoadsidePage';
 
-// Provider Pages (Member 4 - Himla)
+// Provider Pages
 import ProviderDashboardPage from './pages/provider/ProviderDashboardPage';
 import ProviderRequestsPage from './pages/provider/ProviderRequestsPage';
 import ProviderRequestDetailsPage from './pages/provider/ProviderRequestDetailsPage';
@@ -38,7 +39,7 @@ import ProviderMapPage from './pages/provider/ProviderMapPage';
 import ProviderHistoryPage from './pages/provider/ProviderHistoryPage';
 import ProviderProfilePage from './pages/provider/ProviderProfilePage';
 
-// Admin Pages (Member 5 - Hirunika)
+// Admin Pages
 import AdminDashboardPage from './pages/admin/AdminDashboardPage';
 import AdminIncidentsPage from './pages/admin/AdminIncidentsPage';
 import AdminIncidentDetailPage from './pages/admin/AdminIncidentDetailPage';
@@ -54,9 +55,10 @@ export default function App() {
       <AuthProvider>
         <ToastProvider>
           <Routes>
-            {/* Public Website Routes Matching Reference UI (Screens 1 to 6) */}
+            {/* Public Website Routes */}
             <Route path="/" element={<PublicLayout />}>
               <Route index element={<HomePage />} />
+              <Route path="home" element={<HomePage />} />
               <Route path="about" element={<AboutPage />} />
               <Route path="services" element={<ServicesDirectoryPage />} />
               <Route path="stories" element={<StoriesPage />} />
@@ -68,9 +70,9 @@ export default function App() {
               <Route path="forgot-password" element={<ForgotPasswordPage />} />
             </Route>
 
-            {/* Traveler Role Routes */}
+            {/* Traveler Role Routes - Protected strictly for traveler role */}
             <Route path="/traveler" element={<TravelerLayout />}>
-              <Route index element={<TravelerOverviewPage />} />
+              <Route index element={<Navigate to="/traveler/dashboard" replace />} />
               <Route path="dashboard" element={<TravelerOverviewPage />} />
               <Route path="report" element={<ReportEmergencyPage />} />
               <Route path="report-emergency" element={<ReportEmergencyPage />} />
@@ -81,7 +83,7 @@ export default function App() {
               <Route path="roadside" element={<RoadsidePage />} />
             </Route>
 
-            {/* Provider Role Routes (Member 4 - Himla) */}
+            {/* Provider Role Routes - Protected strictly for provider role */}
             <Route path="/provider" element={<ProviderLayout />}>
               <Route index element={<Navigate to="/provider/dashboard" replace />} />
               <Route path="dashboard" element={<ProviderDashboardPage />} />
@@ -94,7 +96,7 @@ export default function App() {
               <Route path="profile" element={<ProviderProfilePage />} />
             </Route>
 
-            {/* Admin Role Routes (Member 5 - Hirunika) */}
+            {/* Admin Role Routes - Protected strictly for admin role */}
             <Route path="/admin" element={<AdminLayout />}>
               <Route index element={<Navigate to="/admin/dashboard" replace />} />
               <Route path="dashboard" element={<AdminDashboardPage />} />

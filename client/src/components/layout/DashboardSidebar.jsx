@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavLink, Link, useLocation } from 'react-router-dom';
+import { NavLink, Link, useLocation, useNavigate } from 'react-router-dom';
 import BrandLogo from '../common/BrandLogo';
 import { useAuth } from '../../context/AuthContext';
 import {
@@ -26,7 +26,14 @@ import {
 export default function DashboardSidebar({ mobileOpen = false, onCloseMobile }) {
   const { user, logout } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
   const role = user?.role || 'traveler';
+
+  const handleLogout = async () => {
+    if (onCloseMobile) onCloseMobile();
+    await logout();
+    navigate('/login', { replace: true });
+  };
 
   // Navigation Links tailored to each specific Role
   const roleNavItems = {
@@ -168,8 +175,8 @@ export default function DashboardSidebar({ mobileOpen = false, onCloseMobile }) 
           </div>
 
           <button
-            onClick={logout}
-            className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-emergency-red hover:bg-white/5 transition-colors"
+            onClick={handleLogout}
+            className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-emergency-red hover:bg-white/5 transition-colors cursor-pointer"
           >
             <LogOut className="w-4 h-4" />
             <span>Sign Out Session</span>

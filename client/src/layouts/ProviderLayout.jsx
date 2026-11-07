@@ -4,7 +4,7 @@ import DashboardLayout from './DashboardLayout';
 
 export default function ProviderLayout() {
   return (
-    <ProtectedRoute allowedRoles={['provider', 'admin']}>
+    <ProtectedRoute allowedRoles={['provider']}>
       <DashboardLayout />
     </ProtectedRoute>
   );

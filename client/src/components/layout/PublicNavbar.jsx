@@ -1,22 +1,21 @@
 import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import BrandLogo from '../common/BrandLogo';
-import Button from '../common/Button';
 import { useAuth } from '../../context/AuthContext';
 import { 
   AlertOctagon, 
   Menu, 
   X, 
-  LayoutDashboard, 
-  UserCheck
+  LogOut,
+  LayoutDashboard
 } from 'lucide-react';
 
 export default function PublicNavbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
-  const { user, isAuthenticated, switchDemoRole } = useAuth();
+  const navigate = useNavigate();
+  const { user, isAuthenticated, logout } = useAuth();
 
-  // Navigation Links strictly matching the reference UI
   const navLinks = [
     { label: 'Home', path: '/' },
     { label: 'About', path: '/about' },
@@ -27,10 +26,16 @@ export default function PublicNavbar() {
   ];
 
   const getDashboardPath = () => {
-    if (!user) return '/traveler';
-    if (user.role === 'provider') return '/provider';
-    if (user.role === 'admin') return '/admin';
-    return '/traveler';
+    if (!user) return '/login';
+    if (user.role === 'provider') return '/provider/dashboard';
+    if (user.role === 'admin') return '/admin/dashboard';
+    return '/traveler/dashboard';
+  };
+
+  const handleLogout = async () => {
+    setMobileMenuOpen(false);
+    await logout();
+    navigate('/login', { replace: true });
   };
 
   return (
@@ -64,46 +69,41 @@ export default function PublicNavbar() {
 
         {/* Right Action Cluster */}
         <div className="hidden md:flex items-center gap-3">
-          {/* Quick Role Tester Pills for Team/Reviewers */}
-          <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl text-xs font-semibold text-slate-600 border border-slate-200">
-            <span className="text-[10px] uppercase tracking-wider text-slate-400 px-1 font-bold">Role:</span>
-            <button
-              onClick={() => switchDemoRole('traveler')}
-              className={`px-2 py-0.5 rounded-lg transition-all ${user?.role === 'traveler' ? 'bg-palette-secondary text-white font-bold shadow-xs' : 'hover:text-palette-primary'}`}
-            >
-              Traveler
-            </button>
-            <button
-              onClick={() => switchDemoRole('provider')}
-              className={`px-2 py-0.5 rounded-lg transition-all ${user?.role === 'provider' ? 'bg-palette-secondary text-white font-bold shadow-xs' : 'hover:text-palette-primary'}`}
-            >
-              Provider
-            </button>
-            <button
-              onClick={() => switchDemoRole('admin')}
-              className={`px-2 py-0.5 rounded-lg transition-all ${user?.role === 'admin' ? 'bg-palette-secondary text-white font-bold shadow-xs' : 'hover:text-palette-primary'}`}
-            >
-              Admin
-            </button>
-          </div>
-
           {/* User Portal Link or Login */}
-          {isAuthenticated ? (
-            <Link to={getDashboardPath()}>
-              <button className="px-4 py-2 rounded-xl text-xs font-bold bg-palette-primary text-white hover:bg-palette-primary-light transition-all shadow-sm">
-                Dashboard ({user.role})
+          {isAuthenticated && user ? (
+            <div className="flex items-center gap-2">
+              <Link to={getDashboardPath()}>
+                <button className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-palette-primary text-white hover:bg-palette-primary-light transition-all shadow-sm capitalize">
+                  <LayoutDashboard className="w-3.5 h-3.5" />
+                  <span>{user.role} Dashboard</span>
+                </button>
+              </Link>
+              <button
+                onClick={handleLogout}
+                className="px-3 py-2 rounded-xl text-xs font-bold text-slate-500 hover:text-emergency-red transition-all flex items-center gap-1"
+                title="Sign out"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+                <span>Logout</span>
               </button>
-            </Link>
+            </div>
           ) : (
-            <Link to="/login">
-              <button className="px-4 py-2 rounded-xl text-xs font-bold border border-palette-secondary text-palette-secondary hover:bg-palette-secondary/10 transition-all">
-                Login / Sign In
-              </button>
-            </Link>
+            <div className="flex items-center gap-2">
+              <Link to="/login">
+                <button className="px-4 py-2 rounded-xl text-xs font-bold border border-palette-secondary text-palette-secondary hover:bg-palette-secondary/10 transition-all">
+                  Sign In
+                </button>
+              </Link>
+              <Link to="/register">
+                <button className="px-4 py-2 rounded-xl text-xs font-bold bg-palette-primary text-white hover:bg-palette-primary-light transition-all shadow-sm">
+                  Register
+                </button>
+              </Link>
+            </div>
           )}
 
-          {/* SOS Report Quick Trigger */}
-          <Link to="/traveler/report">
+          {/* SOS Report Quick Trigger (Only for travelers or public) */}
+          <Link to="/traveler/report-emergency">
             <button className="px-4 py-2 rounded-xl text-xs font-bold bg-palette-secondary hover:bg-palette-secondary-dark text-white transition-all shadow-sm flex items-center gap-1.5">
               <AlertOctagon className="w-3.5 h-3.5" />
               <span>SOS Help</span>
@@ -113,7 +113,7 @@ export default function PublicNavbar() {
 
         {/* Mobile Hamburger Button */}
         <div className="flex items-center gap-2 lg:hidden">
-          <Link to="/traveler/report">
+          <Link to="/traveler/report-emergency">
             <button className="px-3 py-1.5 rounded-xl text-xs font-bold bg-palette-secondary text-white flex items-center gap-1">
               <AlertOctagon className="w-3.5 h-3.5" />
               <span>SOS</span>
@@ -146,33 +146,35 @@ export default function PublicNavbar() {
           </nav>
 
           <div className="pt-4 border-t border-palette-border flex flex-col gap-3">
-            <div className="text-xs font-semibold uppercase text-palette-muted">Switch Demo Role</div>
-            <div className="grid grid-cols-3 gap-2">
-              <button
-                onClick={() => { switchDemoRole('traveler'); setMobileMenuOpen(false); }}
-                className={`p-2 rounded-xl text-xs font-bold ${user?.role === 'traveler' ? 'bg-palette-secondary text-white' : 'bg-slate-100 text-slate-700'}`}
-              >
-                Traveler
-              </button>
-              <button
-                onClick={() => { switchDemoRole('provider'); setMobileMenuOpen(false); }}
-                className={`p-2 rounded-xl text-xs font-bold ${user?.role === 'provider' ? 'bg-palette-secondary text-white' : 'bg-slate-100 text-slate-700'}`}
-              >
-                Provider
-              </button>
-              <button
-                onClick={() => { switchDemoRole('admin'); setMobileMenuOpen(false); }}
-                className={`p-2 rounded-xl text-xs font-bold ${user?.role === 'admin' ? 'bg-palette-secondary text-white' : 'bg-slate-100 text-slate-700'}`}
-              >
-                Admin
-              </button>
-            </div>
-
-            <Link to={getDashboardPath()} onClick={() => setMobileMenuOpen(false)}>
-              <button className="w-full py-2.5 rounded-xl text-sm font-bold bg-palette-primary text-white hover:bg-palette-primary-light">
-                Go to {user?.role || 'Traveler'} Dashboard
-              </button>
-            </Link>
+            {isAuthenticated && user ? (
+              <>
+                <Link to={getDashboardPath()} onClick={() => setMobileMenuOpen(false)}>
+                  <button className="w-full py-2.5 rounded-xl text-sm font-bold bg-palette-primary text-white hover:bg-palette-primary-light capitalize">
+                    Go to {user.role} Dashboard
+                  </button>
+                </Link>
+                <button
+                  onClick={handleLogout}
+                  className="w-full py-2 rounded-xl text-xs font-bold text-slate-500 hover:text-emergency-red flex items-center justify-center gap-1.5"
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                  <span>Sign Out Session</span>
+                </button>
+              </>
+            ) : (
+              <div className="grid grid-cols-2 gap-2">
+                <Link to="/login" onClick={() => setMobileMenuOpen(false)}>
+                  <button className="w-full py-2.5 rounded-xl text-xs font-bold border border-palette-secondary text-palette-secondary text-center">
+                    Sign In
+                  </button>
+                </Link>
+                <Link to="/register" onClick={() => setMobileMenuOpen(false)}>
+                  <button className="w-full py-2.5 rounded-xl text-xs font-bold bg-palette-primary text-white text-center">
+                    Register
+                  </button>
+                </Link>
+              </div>
+            )}
           </div>
         </div>
       )}

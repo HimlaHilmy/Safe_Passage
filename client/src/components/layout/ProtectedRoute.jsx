@@ -17,8 +17,13 @@ export default function ProtectedRoute({ children, allowedRoles = [] }) {
 
   // If specific roles are required, verify access
   if (allowedRoles.length > 0 && !allowedRoles.includes(user.role)) {
-    // Redirect to user's appropriate default dashboard rather than unauthorized lock
-    const redirectPath = user.role === 'admin' ? '/admin' : user.role === 'provider' ? '/provider' : '/traveler';
+    // Redirect to user's authorized role dashboard
+    const redirectPath =
+      user.role === 'admin'
+        ? '/admin/dashboard'
+        : user.role === 'provider'
+        ? '/provider/dashboard'
+        : '/traveler/dashboard';
     return <Navigate to={redirectPath} replace />;
   }
 
