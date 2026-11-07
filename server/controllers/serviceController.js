@@ -774,7 +774,7 @@ exports.getNearbyServices = async (req, res, next) => {
     if (isNaN(maxDistanceMeters) || maxDistanceMeters <= 0 || maxDistanceMeters > 500000) {
       return res.status(400).json({
         success: false,
-        message: 'Invalid search radius. Must be a positive integer between 100 meters and 500,000 meters (500 km).',
+        message: 'Invalid search radius. Must be a positive integer between 1 meter and 500,000 meters (500 km).',
         error: 'INVALID_RADIUS',
       });
     }
